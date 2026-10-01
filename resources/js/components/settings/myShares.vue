@@ -498,4 +498,30 @@ td {
   vertical-align: middle;
   opacity: 0.7;
 }
+
+/* Mobile: shrink-wrap the info boxes to their text instead of stretching
+   full-width. Scoped, so this only affects My Shares. */
+@media (max-width: 900px) {
+  .file-count {
+    display: inline-block;
+    margin: 0 0 6px 0;
+    border-radius: 8px;
+    width: fit-content;
+  }
+  .files-container .file {
+    width: fit-content;
+  }
+  .date-container .date {
+    display: inline-flex;
+    width: fit-content;
+  }
+  .download_limit_manager {
+    display: inline-flex;
+    width: fit-content;
+  }
+  .size-cell .total-size {
+    display: inline-block;
+    width: fit-content;
+  }
+}
 </style>
