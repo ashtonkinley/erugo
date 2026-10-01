@@ -1,12 +1,8 @@
+## 2026-10-01 — Rolled back the weekly cleanup toggle
+- Reverted the "Automatically delete expired shares" toggle: the existing "Clean Files After" setting already covers this (now set to 7 days), with the original daily cleanup schedule restored.
+
 ## 2026-10-01 — Random first background photo
 - The landing page no longer always opens on the same background photo: the slideshow now starts on a random image from your uploaded backgrounds, then keeps rotating randomly every 30 seconds as before.
-
-## 2026-10-01 — Weekly expired-share cleanup with settings toggle
-- Expired-share cleanup now runs weekly (was daily) and can be toggled from Settings → Shares ("Automatically delete expired shares", `auto_clean_expired_shares`, on by default).
-- Deletion still honors the "Clean Files After" grace period; the toggle only controls whether the weekly run happens.
-- `clean-expired-shares` artisan command now forces a run even when the toggle is off.
-- Deletion-warning emails are suppressed while the toggle is off (no false "your files will be deleted" warnings).
-- New setting seeded for fresh installs and added via migration for existing ones; UI strings in English and German.
 
 # FORK Changelog
 

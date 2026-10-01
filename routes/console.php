@@ -13,19 +13,18 @@ use App\Jobs\backUpDatabase;
 use App\Services\SettingsService;
 
 //daily jobs
+Schedule::job(cleanExpiredShares::class)->daily();
 Schedule::job(sendExpiryWarningEmails::class)->daily();
 Schedule::job(sendDeletionWarningEmails::class)->daily();
 Schedule::job(maintainDb::class)->daily();
 Schedule::job(pruneLogs::class)->daily();
 Schedule::job(backUpDatabase::class)->daily();
 Schedule::job(SyncBestOfBackgrounds::class)->daily();
-//weekly jobs
-Schedule::job(cleanExpiredShares::class)->weekly();
 //hourly jobs
 Schedule::job(sendExpiredWarningEmails::class)->hourly();
 //manually run jobs
 Artisan::command('clean-expired-shares', function () {
-    cleanExpiredShares::dispatch(force: true);
+    cleanExpiredShares::dispatch();
 })->purpose('Clean expired shares');
 
 Artisan::command('send-expiry-warning', function () {

@@ -762,8 +762,6 @@
       "chunked_uploads_disabled_but_default": "Sie haben den Standard-Upload-Modus auf \"in Teilen\" eingestellt, aber Uploads \"in Teilen\" sind deaktiviert!",
       "clean_files_after": "Dateien bereinigen nach",
       "clean_files_after_description": "Zeitraum zwischen dem Ablauf der Freigabe und dem Löschen der Dateien aus dem System",
-      "auto_clean_expired_shares": "Abgelaufene Freigaben automatisch löschen",
-      "auto_clean_expired_shares_description": "Wenn aktiviert, werden abgelaufene Freigaben einmal pro Woche automatisch gelöscht, nachdem die oben genannte Frist verstrichen ist. Wenn deaktiviert, bleiben abgelaufene Freigaben erhalten, bis sie manuell gelöscht werden.",
       "days": "Tage",
       "default_expiry_time": "Standard-Ablaufzeit",
       "default_language": "Standardsprache",
