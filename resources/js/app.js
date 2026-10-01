@@ -8,6 +8,13 @@ import App from './App.vue'
 import Toast, { POSITION } from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 import { domData } from './domData'
+import { store } from './store.js'
+
+// TEST ONLY: auto-login when ERUGO_TEST_NO_AUTH=true (body has data-test-no-auth)
+if (document.body.dataset.testNoAuth === 'true') {
+  store.setLoggedIn(true)
+  store.setAdmin(true)
+}
 
 //import languages
 // Fork note: this build is English-only — no language selector is offered.

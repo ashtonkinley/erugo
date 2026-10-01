@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->encryptCookies(except: [
             'refresh_token',
         ]);
+        // TEST ONLY: auto-auth when ERUGO_TEST_NO_AUTH=true (never set in prod)
+        $middleware->append(\App\Http\Middleware\TestNoAuthMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
