@@ -1044,6 +1044,8 @@
       "direct": "Direct upload mode"
     },
     "expiry_label": "Share will expire in {text} (change)",
+    "new_share": "New share",
+    "drop_hint": "or drag & drop files anywhere on the photo",
     "expiry_max_value": "Max: {value}",
     "expiry_too_long": "The expiry time you entered exceeds the maximum limit. We've automatically adjusted it to the longest period allowed.",
     "expiry_unit": {

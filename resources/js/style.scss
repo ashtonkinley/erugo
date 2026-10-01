@@ -209,6 +209,19 @@ body {
   align-items: flex-start;
   width: 100%;
 
+  // Editorial upload page (Option A): the logo sits top-centre.
+  &.logo-centered {
+    justify-content: center;
+
+    // Keep the centred logo clear of the floating top-right menu buttons
+    // on narrow screens.
+    @media (max-width: 900px) {
+      #logo {
+        max-width: 175px;
+      }
+    }
+  }
+
   @media (max-width: 900px) {
     justify-content: center;
     padding-top: 10px;

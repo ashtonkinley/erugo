@@ -532,3 +532,586 @@ html[data-theme="dark"] .guest-name-field.is-guest input {
     min-height: 220px;
   }
 }
+
+// ============================================================================
+// Editorial upload page (Option A)
+// Full-bleed rotating photo, gradient scrims, bottom-centred upload panel
+// with pill buttons and restrained glass controls — mirroring the download
+// page treatment. Everything inside the hero is light-on-photo; the theme
+// variables underneath are intentionally not used here.
+// ============================================================================
+
+.upload-hero {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: #fff;
+
+  // The app has no global border-box reset; scope one to the hero so
+  // width: 100% + padding never overflows the viewport.
+  &,
+  & * {
+    box-sizing: border-box;
+  }
+
+  .upload-scrim {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    // Subtle top shade keeps the status-bar clock readable now that the
+    // photo extends under it (viewport-fit=cover); the bottom-up scrim
+    // keeps the upload panel legible.
+    background:
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.32) 0%, transparent 22%),
+      linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.82) 0%,
+        rgba(0, 0, 0, 0.45) 40%,
+        rgba(0, 0, 0, 0.12) 65%,
+        transparent 85%
+      );
+  }
+}
+
+.upload-hero-content {
+  position: relative;
+  width: 100%;
+  max-width: 940px;
+  // margin-top: auto bottom-anchors the panel when the content is shorter
+  // than the viewport, and still scrolls correctly when it is taller
+  // (justify-content: flex-end would clip the top).
+  margin: auto auto 0;
+  padding: 24px 24px calc(28px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+
+  @media (min-width: 900px) {
+    padding-bottom: calc(52px + env(safe-area-inset-bottom));
+  }
+}
+
+.upload-hero {
+  .upload-kicker {
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.78;
+    margin: 0 0 12px;
+    text-align: center;
+  }
+
+  .upload-invite-label {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 14px;
+  }
+
+  // --- top block: buttons + meta -------------------------------------------
+  .upload-form {
+    width: 100%;
+    position: static; // the progress overlay is fixed to the viewport instead
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 0;
+    color: #fff;
+
+    .buttons {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto 16px;
+
+      // On narrow phones the two pills share one row; keep each label on
+      // a single line and shrink the padding so they fit.
+      @media (max-width: 480px) {
+        gap: 8px;
+
+        .upload-files,
+        .upload-folder {
+          padding: 14px 10px;
+          font-size: 0.95rem;
+          white-space: nowrap;
+        }
+      }
+    }
+
+    // Hero pill: "Add files" is the dominant action.
+    .upload-files {
+      flex: 1.25;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--primary-button-background-color);
+      color: var(--primary-button-text-color);
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 16px 22px;
+      height: auto;
+      width: auto;
+      border: none;
+      border-radius: 999px;
+      text-shadow: none;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+      margin-right: 0;
+
+      &:hover {
+        background: var(--primary-button-background-color-hover);
+        color: var(--primary-button-text-color-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+      }
+    }
+
+    // Quieter glass pill for "Add folders".
+    .upload-folder {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 600;
+      padding: 16px 22px;
+      height: auto;
+      width: auto;
+      border-radius: 999px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      text-shadow: none;
+      margin-right: 0;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.22);
+        color: #fff;
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+      }
+    }
+  }
+
+  .upload-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin-bottom: 4px;
+    text-align: center;
+    flex-wrap: wrap;
+
+    .max-size-label {
+      margin: 0;
+      color: #fff;
+      font-size: 0.85rem;
+    }
+
+    .meta-dot {
+      opacity: 0.55;
+    }
+
+    .expiry-label {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      margin: 0;
+
+      &:hover {
+        color: #fff;
+        text-decoration: underline;
+      }
+
+      svg {
+        width: 12px;
+        height: 12px;
+        margin-right: 5px;
+      }
+    }
+  }
+
+  .expiry-settings {
+    position: relative;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease-in-out;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &.visible {
+      max-height: 60px;
+      margin-top: 8px;
+    }
+
+    input,
+    select {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 12px;
+      color: #fff;
+      padding: 8px 12px;
+      text-shadow: none;
+
+      option {
+        color: #111;
+      }
+    }
+
+    .maxValueOverlay {
+      position: static;
+      font-size: 0.8rem;
+      opacity: 0.6;
+    }
+  }
+
+  // --- recipients + text fields ---------------------------------------------
+  .upload-basket-details {
+    width: 100%;
+    background: none;
+    padding-top: 12px;
+
+    input,
+    textarea {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      // Beats the theme's `border-radius: 0 !important` on these fields.
+      border-radius: 16px !important;
+      color: #fff;
+      padding: 15px 18px;
+      font-size: 0.95rem;
+      text-shadow: none;
+      width: 100%;
+      margin-bottom: 10px;
+
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.55);
+      }
+
+      &:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.16);
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 52px;
+    }
+
+    .error-message {
+      color: #ffb4b4;
+      text-shadow: none;
+    }
+  }
+
+  .recipients {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin: 0 0 10px;
+
+    .button-outside-label-text {
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    button.icon-only.round {
+      width: 34px;
+      height: 34px;
+      background: var(--primary-button-background-color);
+      color: var(--primary-button-text-color);
+      border: none;
+      margin-right: 0;
+
+      &:hover {
+        background: var(--primary-button-background-color-hover);
+        color: var(--primary-button-text-color-hover);
+      }
+
+      svg {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+      }
+    }
+
+    .recipient-list-empty {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.8rem;
+      font-style: italic;
+    }
+  }
+
+  .guest-name-field.is-guest {
+    label {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-right: none;
+      border-radius: 16px 0 0 16px;
+      color: #fff;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    input {
+      border-radius: 0 16px 16px 0 !important;
+    }
+  }
+
+  // --- dropzone / basket ------------------------------------------------------
+  .upload-basket {
+    width: 100%;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0;
+    overflow-y: visible;
+    // Cap the file list so the panel never pushes the actions off-screen.
+    max-height: 34vh;
+
+    .basket-items.dropzone {
+      border: 1.5px dashed rgba(255, 255, 255, 0.4);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      text-align: center;
+      cursor: pointer;
+
+      &.active {
+        border-color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .upload-basket-empty {
+      height: auto;
+
+      .upload-basket-empty-text {
+        display: block;
+        color: #fff;
+        opacity: 0.92;
+        font-size: 1rem;
+        font-weight: 600;
+
+        .drop-hint {
+          display: block;
+          font-size: 0.88rem;
+          font-weight: 400;
+          opacity: 0.85;
+          margin-top: 4px;
+        }
+      }
+    }
+
+    // File/folder rows get a dark glass treatment so they stay legible
+    // once files are in the basket.
+    .upload-basket-item,
+    .upload-basket-folder {
+      background: rgba(0, 0, 0, 0.38);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      text-shadow: none;
+
+      .name,
+      .meta {
+        color: #fff;
+      }
+
+      .hover-actions {
+        background-image: linear-gradient(to right, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0.55));
+      }
+    }
+  }
+
+  // --- bottom upload button ----------------------------------------------------
+  .upload-button-container {
+    width: 100%;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-radius: 0;
+    padding: 14px 0 0;
+    z-index: auto;
+
+    .container-fluid,
+    .row,
+    .col {
+      padding: 0;
+      margin: 0;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .col {
+      flex: 1;
+      display: flex;
+    }
+
+    .upload-button {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--primary-button-background-color);
+      color: var(--primary-button-text-color);
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 16px 22px;
+      height: auto;
+      width: auto;
+      border: none;
+      border-radius: 999px;
+      text-shadow: none;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+      margin-right: 0;
+
+      &:hover:not(:disabled) {
+        background: var(--primary-button-background-color-hover);
+        color: var(--primary-button-text-color-hover);
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        background: rgba(255, 255, 255, 0.14);
+        color: rgba(255, 255, 255, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: none;
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+      }
+
+      .loader svg {
+        animation: spin 1s linear infinite;
+      }
+    }
+
+    button.icon-only.secondary {
+      width: 52px;
+      height: 52px;
+      flex: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: #fff;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      margin-right: 0;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.22);
+        color: #fff;
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+      }
+    }
+  }
+
+  // --- upload progress takes over the viewport ----------------------------------
+  .progress-bar-container {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    border-radius: 0;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    justify-content: center;
+    padding: 24px;
+
+    .progress-bar-header .progress-bar-heading,
+    .progress-bar-header .progress-bar-title,
+    .progress-bar-text {
+      color: #fff;
+    }
+
+    .progress-bar-header .progress-bar-heading {
+      border-bottom-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .progress-bar-text .progress-item {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .pause-button {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      width: 44px;
+      height: 44px;
+      right: 20px;
+      top: 20px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.24);
+      }
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

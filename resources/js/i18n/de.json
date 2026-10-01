@@ -1023,6 +1023,8 @@
       "direct": "Direkter Upload Modus"
     },
     "expiry_label": "Die Datei-Freigabe verfällt in {text}",
+    "new_share": "Neue Freigabe",
+    "drop_hint": "oder Dateien per Drag & Drop auf das Foto ziehen",
     "expiry_max_value": "Maximum: {value}",
     "expiry_too_long": "Die von Ihnen eingegebene Ablaufzeit überschreitet das Maximum. Wir haben sie automatisch auf den längsten zulässigen Zeitraum gesetzt.",
     "expiry_unit": {

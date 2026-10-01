@@ -16,6 +16,10 @@
 
 > **Translation policy of this fork:** Only **English and German** are actively maintained and offered in the UI. The language selector has been reduced to these two languages, and the other locale files (`fr`, `it`, `nl`, `pt`, `pt-BR`) still exist but are no longer updated when UI strings change.
 
+## 2026-10-01 — Editorial upload page (Option A)
+- **Upload page redesign (Option A):** the share upload page is now a full-bleed editorial treatment matching the download page — rotating background photo, bottom gradient scrim (plus a subtle top shade for the status-bar clock), centred logo, and a bottom-centred upload panel. "Add files" is the dominant pill button in the theme's primary color; "Add folders" is a quieter glass pill. Storage quota and expiry sit on one centred meta line (expiry settings expand inline); recipients, share-name/message fields, and the dropzone use restrained glass styling; the bottom "Upload" button is a full-width hero pill and the password lock is a glass circle. The upload progress overlay now takes over the viewport with a dark scrim. Settings/logout/reverse-share actions float as glass circles top-right; "Powered by" is hidden on the upload page.
+- New i18n keys `uploader.new_share` / `uploader.drop_hint` (English + German).
+
 ## 2026-09-30 — Security dependency upgrades (baseline audit must-fix)
 - twig/twig 3.20.0 → 3.30.0 — 14 advisories incl. critical RCE/sandbox escapes; admin email templates compile raw Twig server-side
 - laravel/framework 11.42.1 → 11.57.0 — file-validation bypass (GHSA-78fx-h6xr-vch4), directly in the upload threat model
