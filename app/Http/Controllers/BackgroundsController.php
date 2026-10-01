@@ -9,6 +9,7 @@ use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Facades\Validator;
 use App\Utils\FileHelper;
 use App\Models\Setting;
+use App\Jobs\SyncBestOfBackgrounds;
 
 class BackgroundsController extends Controller
 {
@@ -137,6 +138,12 @@ class BackgroundsController extends Controller
             // If no backgrounds remain, automatically disable use_my_backgrounds
             if (empty($remainingFiles)) {
                 Setting::where('key', 'use_my_backgrounds')->update(['value' => false]);
+            }
+
+            // If this was an auto-synced BestOf background, remember the
+            // deletion so the daily sync doesn't bring it back.
+            if (SyncBestOfBackgrounds::isSyncedFilename($safeFile)) {
+                SyncBestOfBackgrounds::blockFilename($safeFile);
             }
 
             return response()->json([

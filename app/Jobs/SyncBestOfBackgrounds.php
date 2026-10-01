@@ -6,6 +6,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Setting;
 
 /**
  * Sync the lab's monthly "10 best" photos into the rotating landing-page
@@ -29,6 +30,72 @@ class SyncBestOfBackgrounds implements ShouldQueue
   private const TEN_BEST_DIR = '_10Best';
   private const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
+  /**
+   * Settings key holding the JSON list of auto-synced background filenames
+   * the user has manually deleted. The sync never re-adds these.
+   */
+  private const BLOCKED_SETTING_KEY = 'bestof_backgrounds_blocked';
+
+  /**
+   * Was this background filename produced by this sync? Synced files look
+   * like "11_BestOfMay_ClientName_Film_1.jpg".
+   */
+  public static function isSyncedFilename(string $filename): bool
+  {
+    return (bool) preg_match('/^\d+_BestOf[A-Za-z]+_.+\.(jpg|jpeg|png|gif|webp)$/i', $filename);
+  }
+
+  /**
+   * Filenames the user has manually deleted and doesn't want re-synced.
+   */
+  public static function blockedFilenames(): array
+  {
+    $value = Setting::where('key', self::BLOCKED_SETTING_KEY)->value('value');
+    if (!$value) {
+      return [];
+    }
+    $decoded = json_decode($value, true);
+    return is_array($decoded) ? array_values($decoded) : [];
+  }
+
+  /**
+   * Remember a manually deleted background so the sync won't bring it back.
+   */
+  public static function blockFilename(string $filename): void
+  {
+    $blocked = self::blockedFilenames();
+    if (!in_array($filename, $blocked, true)) {
+      $blocked[] = $filename;
+      Setting::updateOrCreate(
+        ['key' => self::BLOCKED_SETTING_KEY],
+        ['value' => json_encode(array_values($blocked))]
+      );
+      Log::info('BestOf background blocked by user', ['file' => $filename]);
+    }
+  }
+
+  /**
+   * Forget one blocked filename, or all of them with $all. Returns how many
+   * were unblocked.
+   */
+  public static function unblockFilenames(?string $filename = null, bool $all = false): int
+  {
+    $blocked = self::blockedFilenames();
+    if ($all) {
+      $count = count($blocked);
+      $blocked = [];
+    } else {
+      $before = count($blocked);
+      $blocked = array_values(array_filter($blocked, fn($f) => $f !== $filename));
+      $count = $before - count($blocked);
+    }
+    Setting::updateOrCreate(
+      ['key' => self::BLOCKED_SETTING_KEY],
+      ['value' => json_encode(array_values($blocked))]
+    );
+    return $count;
+  }
+
   public function handle(): void
   {
     $bestOfPath = config('mtlanalogue.bestof_path');
@@ -41,6 +108,7 @@ class SyncBestOfBackgrounds implements ShouldQueue
     }
 
     $disk = Storage::disk('backgrounds');
+    $blocked = self::blockedFilenames();
     $added = 0;
     $skipped = 0;
 
@@ -75,6 +143,10 @@ class SyncBestOfBackgrounds implements ShouldQueue
         }
 
         $target = $monthFolder . '_' . $file;
+        if (in_array($target, $blocked, true)) {
+          $skipped++;
+          continue; // user manually deleted this one; don't bring it back
+        }
         if ($disk->exists($target)) {
           $skipped++;
           continue;

@@ -1,3 +1,7 @@
+## 2026-10-01 — BestOf backgrounds respect manual deletions
+- Deleting an auto-synced background via the X button now sticks: the delete endpoint records the filename in a `bestof_backgrounds_blocked` setting and the daily sync skips blocked files instead of re-copying them.
+- New commands: `backgrounds:blocked` (list removed backgrounds), `backgrounds:unblock {filename}` / `backgrounds:unblock --all` (allow re-sync).
+
 ## 2026-10-01 — BestOf backgrounds auto-sync
 - New `SyncBestOfBackgrounds` job + `backgrounds:sync-bestof` artisan command: copies each month folder's `_10Best` photos from the lab's BestOf archive into the rotating landing-page backgrounds (top-level, prefixed with the month folder name so months can't collide). Underscore-prefixed exports (monthly collage, .psd) and non-images are skipped.
 - Idempotent: already-synced files and months without a `_10Best` folder are skipped; a missing BestOf mount logs a warning instead of failing.
