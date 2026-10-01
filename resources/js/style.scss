@@ -689,37 +689,42 @@ select option {
     display: none;
   }
 
-  /* Mobile: page scrolls, not the table. Tabs stay fixed at top. */
+  /* Mobile: only the shares list scrolls — header and tabs stay fixed. */
   @media (max-width: 900px) {
     .settings-container {
-      /* Let the whole panel scroll instead of a nested scroll area */
-      overflow-y: auto;
-      overflow-x: hidden;
+      /* Container itself does not scroll */
+      overflow: hidden;
     }
 
     .settings-tabs-wrapper {
       position: static;
+      /* Take up remaining space so the content area can scroll within it */
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
 
     .settings-tabs-container {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      /* Solid enough that scrolled content doesn't show through */
-      background: rgba(24, 24, 30, 0.95);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
+      /* Tabs stay pinned at top, outside the scroll area */
+      flex-shrink: 0;
     }
 
     .settings-tab-content {
-      /* No nested scroll — content flows with the page */
-      display: block;
-      overflow: visible;
+      /* Content area fills remaining space and scrolls */
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     .tab-content-body {
-      overflow-y: visible;
-      flex-grow: 0;
+      /* This is the ONLY scrollable area on mobile */
+      overflow-y: auto;
+      flex: 1;
+      min-height: 0;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* Small X button, top-right — not a full-width bar */
