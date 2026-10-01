@@ -204,6 +204,9 @@ defineExpose({
               />
             </div>
           </td>
+          <td width="1" style="white-space: nowrap" class="size-cell">
+            <div class="total-size">{{ niceFileSize(share.files.reduce((s, f) => s + (f.size || 0), 0)) }}</div>
+          </td>
           <td width="1" style="white-space: nowrap">
             <div class="date-container">
               <div class="date">
