@@ -49,6 +49,7 @@ const brandingSettings = ref(null)
 const systemSettings = ref(null)
 
 const showDeletedShares = ref(false)
+const showExpiredShares = ref(false)
 const showDeletedSharesAll = ref(false)
 const allSharesUsers = ref([])
 const selectedUserId = ref(null)
@@ -73,6 +74,10 @@ onMounted(() => {
   const showDeletedSharesSetting = localStorage.getItem('showDeletedShares')
   if (showDeletedSharesSetting) {
     showDeletedShares.value = showDeletedSharesSetting === 'true'
+  }
+  const showExpiredSharesSetting = localStorage.getItem('showExpiredShares')
+  if (showExpiredSharesSetting) {
+    showExpiredShares.value = showExpiredSharesSetting === 'true'
   }
   const showDeletedSharesAllSetting = localStorage.getItem('allSharesShowDeleted')
   if (showDeletedSharesAllSetting) {
@@ -190,6 +195,12 @@ const setShowDeletedShares = (value) => {
   showDeletedShares.value = value
   localStorage.setItem('showDeletedShares', value)
   mySharesPanel.value.setShowDeletedShares(value)
+}
+
+const setShowExpiredShares = (value) => {
+  showExpiredShares.value = value
+  localStorage.setItem('showExpiredShares', value)
+  mySharesPanel.value.setShowExpiredShares(value)
 }
 
 const setShowDeletedSharesAll = (value) => {
@@ -543,6 +554,12 @@ const handleUserFilterChange = (event) => {
                       <div class="checkbox-container pt-4">
                         <input type="checkbox" id="show_deleted_shares" :checked="showDeletedShares" @change="setShowDeletedShares($event.target.checked)" />
                         <label for="show_deleted_shares">{{ $t('settings.system.show_deleted_shares') }}</label>
+                      </div>
+                    </div>
+                    <div class="col-auto">
+                      <div class="checkbox-container pt-4">
+                        <input type="checkbox" id="show_expired_shares" :checked="showExpiredShares" @change="setShowExpiredShares($event.target.checked)" />
+                        <label for="show_expired_shares">{{ $t('settings.system.show_expired_shares') }}</label>
                       </div>
                     </div>
                     <div class="col-auto pe-0">

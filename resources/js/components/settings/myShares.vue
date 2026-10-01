@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, inject, defineExpose } from 'vue'
+import { ref, onMounted, inject, defineExpose, computed } from 'vue'
 import { getMyShares, expireShare, extendShare, setDownloadLimit, pruneExpiredShares } from '../../api'
 import {
   SquareArrowOutUpRight,
@@ -28,8 +28,10 @@ const loadedShares = ref(false)
 
 const shares = ref([])
 const showDeletedShares = ref(false)
+const showExpiredShares = ref(false)
 onMounted(async () => {
   showDeletedShares.value = localStorage.getItem('showDeletedShares') === 'true'
+  showExpiredShares.value = localStorage.getItem('showExpiredShares') === 'true'
   loadShares()
 })
 
@@ -116,9 +118,21 @@ const setShowDeletedShares = (value) => {
   loadShares()
 }
 
+// Client-side only: the API already returns expired shares; this just
+// controls whether expired-but-not-deleted ones are visible.
+const visibleShares = computed(() => {
+  if (showExpiredShares.value) return shares.value
+  return shares.value.filter((share) => !(share.expired && !share.deleted))
+})
+
+const setShowExpiredShares = (value) => {
+  showExpiredShares.value = value
+}
+
 defineExpose({
   handlePruneExpiredShares,
-  setShowDeletedShares
+  setShowDeletedShares,
+  setShowExpiredShares
 })
 </script>
 
@@ -132,7 +146,7 @@ defineExpose({
         {{ $t('settings.help.downloadLimit.description2') }}
       </p>
     </HelpTip>
-    <table v-if="shares.length > 0">
+    <table v-if="visibleShares.length > 0">
       <thead>
         <tr>
           <th>{{ $t('settings.table.name') }}</th>
@@ -146,7 +160,7 @@ defineExpose({
         </tr>
       </thead>
       <tbody>
-        <tr v-for="share in shares" :key="share.id" :class="{ 'reverse-share': share.shared_with_me }">
+        <tr v-for="share in visibleShares" :key="share.id" :class="{ 'reverse-share': share.shared_with_me }">
           <td width="1" style="white-space: nowrap">
             <div class="slide-text">
               <strong class="content">

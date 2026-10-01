@@ -870,6 +870,7 @@
       "share_url_shortcode_length": "Short Code length",
       "shares": "Shares",
       "show_deleted_shares": "Show deleted shares",
+      "show_expired_shares": "Show expired shares",
       "show_language_selector": "Show Language Selector",
       "show_language_selector_description": "Toggle the visibility of the language selection dropdown in the top right corner of the application. When enabled, users can quickly switch between available interface languages.",
       "smtp": "SMTP",
