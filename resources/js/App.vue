@@ -260,7 +260,7 @@ watch(
       <ThankGuestForUpload v-if="store.mode === 'thank_guest_for_upload'" />
     </div>
 
-    <footer v-if="!isLoading" :class="{ 'footer-upload-mode': store.mode === 'upload' }">
+    <footer v-if="!isLoading" :class="{ 'footer-upload-mode': store.mode === 'upload' && store.isLoggedIn() }">
       <!-- version info: shows if show_powered_by is true -->
       <div class="powered-by" v-if="showPoweredBy">
         {{ $t('Powered by') }}
