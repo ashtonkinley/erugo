@@ -60,9 +60,13 @@ class SyncBestOfBackgrounds implements ShouldQueue
         if ($file === '.' || $file === '..') {
           continue;
         }
-        // Skip composites/exports (underscore-prefixed, e.g. the monthly
-        // favourites collage and .psd) and anything that isn't a photo.
+        // Skip the monthly favourites collage/exports and anything that
+        // isn't a photo: lab-internal files are underscore-prefixed and the
+        // collage name isn't consistent about it, so match it explicitly.
         if (str_starts_with($file, '.') || str_starts_with($file, '_')) {
+          continue;
+        }
+        if (stripos($file, 'monthlyfavourites') !== false) {
           continue;
         }
         $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
