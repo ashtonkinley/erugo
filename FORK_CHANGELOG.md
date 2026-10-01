@@ -114,3 +114,15 @@ all settings pages:
   glass look.
 - Native `<select>` dropdown options are pinned to dark-on-white so they stay
   readable on glass inputs.
+
+## Settings glass readability fixes
+
+- Sticky table headers are now near-opaque dark glass, so scrolled rows
+  can no longer show through the header.
+- `--label-text-color` is overridden to white under `.settings-overlay`
+  (checkbox labels like "Show deleted shares" were rendering dark-on-dark).
+- Very light photos: gentle text-shadow lift on headings, labels, tabs and
+  table text inside the settings panel and login card, so white text stays
+  readable without changing the light-glass look. Dark-text controls
+  (white pills, active tab) are excluded so they stay crisp. The dim behind
+  the settings panel went from 0.25 to 0.32 for a touch more contrast.

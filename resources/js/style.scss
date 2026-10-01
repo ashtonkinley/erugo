@@ -457,6 +457,12 @@ body {
       color: #fff;
     }
 
+    /* Very light photos wash out white text: a gentle lift that keeps the
+       glass look. The white login pill keeps dark text, so it stays crisp. */
+    h1, p, a, label {
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
+    }
+
     p {
       color: rgba(255, 255, 255, 0.75);
     }
@@ -592,6 +598,31 @@ select option {
   --scrollbar-thumb-color: rgba(255, 255, 255, 0.25);
   --scrollbar-track-color: transparent;
   --scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.4);
+
+  --label-text-color: #fff;
+
+  /* Sticky table headers go near-opaque so scrolled rows can't show
+     through them. */
+  table thead {
+    background: rgba(24, 24, 30, 0.92);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    backdrop-filter: blur(18px) saturate(1.2);
+  }
+
+  /* Very light photos wash out white text: a gentle lift that keeps the
+     glass look. Kept off dark-text controls (white pills, active tab). */
+  .settings-container {
+    h1, h2, h3, h6, label,
+    .settings-tab,
+    table th, table td,
+    .settings-group-info, .setting-group-header p {
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+    }
+    .settings-tab.active,
+    table td .btn {
+      text-shadow: none;
+    }
+  }
 }
 
 .button-bar {

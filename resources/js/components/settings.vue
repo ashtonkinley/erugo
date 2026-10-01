@@ -640,7 +640,7 @@ const handleUserFilterChange = (event) => {
   }
 
   &.active {
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.32);
     pointer-events: auto;
     transition-delay: 0s;
     backdrop-filter: blur(6px);
