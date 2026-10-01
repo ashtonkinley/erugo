@@ -60,6 +60,7 @@ table {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: flex-start;
     background: rgba(255, 255, 255, 0.07);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
@@ -72,25 +73,33 @@ table {
     padding: 0;
     text-align: center;
   }
+  // Name + share link left-aligned
   .my-shares-tab td:nth-child(1) {
     flex: 1 1 100%;
+    text-align: left;
   }
   .my-shares-tab td:nth-child(1) .slide-text {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
   }
   .my-shares-tab td:nth-child(1) .content {
     font-size: 1.1rem;
     font-weight: 700;
   }
+  // Files / Downloads / Size: three columns, text-sized boxes, same height
   .my-shares-tab td:nth-child(2),
-  .my-shares-tab td:nth-child(3) {
-    flex: 1 1 40%;
+  .my-shares-tab td:nth-child(3),
+  .my-shares-tab td.size-cell {
+    flex: 1 1 30%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   .my-shares-tab td:nth-child(2)::before,
-  .my-shares-tab td:nth-child(3)::before {
+  .my-shares-tab td:nth-child(3)::before,
+  .my-shares-tab td.size-cell::before {
     display: block;
     font-size: 0.7rem;
     text-transform: uppercase;
@@ -105,13 +114,34 @@ table {
   .my-shares-tab td:nth-child(3)::before {
     content: "Downloads";
   }
-  .my-shares-tab .files-container {
-    justify-content: center;
+  .my-shares-tab td.size-cell::before {
+    content: "Size";
   }
-  .my-shares-tab td:nth-child(4) {
+  .my-shares-tab td:nth-child(2) .file-count,
+  .my-shares-tab td.size-cell .total-size {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 6px 14px;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  // Hide the duplicate filename pills (share name is already the title)
+  .my-shares-tab td:nth-child(2) .files-container {
+    display: none;
+  }
+  .my-shares-tab td:nth-child(3) .download_limit_manager {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 6px 14px;
+  }
+  // Dates (now 5th cell after size-cell was added)
+  .my-shares-tab tr > td:nth-child(5) {
     flex: 1 1 100%;
+    margin-top: 4px;
   }
-  .my-shares-tab td:nth-child(4)::before {
+  .my-shares-tab tr > td:nth-child(5)::before {
     display: block;
     font-size: 0.7rem;
     text-transform: uppercase;
@@ -121,36 +151,37 @@ table {
     font-weight: 600;
     content: "Dates";
   }
-  .my-shares-tab td:nth-child(4) .date-container {
+  .my-shares-tab tr > td:nth-child(5) .date-container {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     justify-content: center;
   }
-  .my-shares-tab td:nth-child(4) .date {
-    flex: 1;
-    display: flex;
+  .my-shares-tab tr > td:nth-child(5) .date {
+    display: inline-flex;
     flex-direction: column;
     align-items: center;
-    padding: 8px 6px;
-    font-size: 0.78rem;
-    min-width: 0;
+    padding: 8px 16px;
+    font-size: 0.82rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
   }
-  .my-shares-tab td:nth-child(4) .date span {
+  .my-shares-tab tr > td:nth-child(5) .date span {
     min-width: 0;
     margin: 0 0 3px 0;
-    padding: 3px 6px;
+    padding: 3px 8px;
     height: auto;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
   }
-  .my-shares-tab td:nth-child(5) {
+  // Actions (now 6th cell)
+  .my-shares-tab tr > td:nth-child(6) {
     flex: 1 1 100%;
     display: flex;
     gap: 8px;
     justify-content: center;
-    margin-top: 4px;
+    margin-top: 6px;
   }
   .my-shares-tab td:nth-child(1)::before,
-  .my-shares-tab td:nth-child(5)::before {
+  .my-shares-tab tr > td:nth-child(6)::before {
     display: none;
   }
 }
