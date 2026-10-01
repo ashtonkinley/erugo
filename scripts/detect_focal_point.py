@@ -19,11 +19,15 @@ centroid is the right "best guess". No face found -> null (caller falls back
 to a centered crop, i.e. the old behaviour). Nothing ever gets worse than
 today.
 
-Border detection: scan inward from each edge on a downscaled grayscale copy;
-a row/column counts as border when >=97% of its pixels are near-black
-(gray < 14). Film borders are uniformly black, so a near-black strip carries
-no visible content and is always safe to trim. Thin strips (<0.4% of the
-dimension) are ignored to skip JPEG edge noise.
+Border detection: scan inward from each edge at full resolution
+(downscaling blurs the sharp white->black film edge). Two lab-scan border
+styles are handled: a black film rebate right at the image edge, and a
+white scanner surround outside the black film strip ([white][black][photo]).
+Per edge: skip the white surround, allow up to 2 gray transition columns,
+then require a black film strip (>=85% of the line darker than gray 25).
+The film rebate is very black (mean ~15), so the strict threshold keeps
+dark photo content safe. Thin strips (<0.3% of the dimension) are ignored
+to skip JPEG edge noise.
 
 Usage: python3 detect_focal_point.py /path/to/image.jpg [--crop-output /path/to/cropped.jpg]
 Output (stdout, JSON):
@@ -41,55 +45,82 @@ import sys
 MODEL_FILENAME = "face_detection_yunet_2023mar.onnx"
 SCORE_THRESHOLD = 0.6
 
-# Border detection tuning
-BLACK_LEVEL = 14        # grayscale value below which a pixel counts as black
-LINE_COVERAGE = 0.97    # fraction of a row/col that must be black to be border
-MIN_BORDER_FRAC = 0.004 # ignore thinner strips (JPEG edge noise)
-MAX_BORDER_FRAC = 0.35  # sanity cap per side
+# Border detection tuning.
+#
+# Lab scans come in two border styles:
+#   1. Black film rebate right at the image edge.
+#   2. White scanner surround outside a black film strip:
+#      [white][black][photo].
+# Both are detected per edge at full resolution (downscaling blurs the
+# sharp white->black film edge) in three phases: strict white surround,
+# up to 2 gray transition columns, then the required black film strip.
+# The film rebate is very black (mean ~15); the strict threshold keeps
+# dark photo content (shadows, dark backgrounds) safe. A black strip is
+# required in all cases — that is the distinctive film-border signature.
+FILM_BLACK = 25         # grayscale value below which a pixel is film-black
+WHITE_LEVEL = 180       # line mean above which it is white surround
+STRIP_COVERAGE = 0.85   # fraction of a line that must be film-black for strip
+MIN_STRIP_FRAC = 0.003  # ignore thinner strips (JPEG edge noise)
+MAX_STRIP_FRAC = 0.06   # black strip sanity cap per side
+MAX_TOTAL_FRAC = 0.12   # surround+strip combined sanity cap per side
 
 
 def fail(reason: str) -> None:
     print(json.dumps({"x": None, "y": None, "borders": None, "error": reason}))
 
 
-def detect_borders(img):
-    """Return border insets as fractions {top, right, bottom, left}."""
-    height, width = img.shape[:2]
+def _side_inset(line_means, line_black_fracs, n):
+    """Border inset (fraction) for one edge.
 
-    # Downscale for speed; border strips survive this fine.
-    scale = 400.0 / max(height, width)
-    if scale < 1.0:
-        small = cv2.resize(img, (int(width * scale), int(height * scale)),
-                           interpolation=cv2.INTER_AREA)
-    else:
-        small = img
-    gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
-    black = gray < BLACK_LEVEL
+    line_means / line_black_fracs are per-line (row or column) stats
+    ordered from the edge inward; n is the dimension length.
+    Three phases: strict white surround, up to 2 transition columns,
+    then the required black film strip.
+    """
+    i = 0
+    # Phase 1: white scanner surround.
+    while i < n and line_means[i] > WHITE_LEVEL:
+        i += 1
+    # Phase 2: up to 2 transition columns (gray blur between white/black).
+    j = i
+    skipped = 0
+    while j < n and skipped < 2 and line_means[j] > 50 \
+            and line_black_fracs[j] <= STRIP_COVERAGE:
+        j += 1
+        skipped += 1
+    # Phase 3: the black film strip (required).
+    k = j
+    while k < n and line_black_fracs[k] > STRIP_COVERAGE:
+        k += 1
+    strip_frac = (k - j) / n
+    if strip_frac < MIN_STRIP_FRAC or strip_frac > MAX_STRIP_FRAC:
+        return 0.0
+    if k / n > MAX_TOTAL_FRAC:
+        return 0.0
+    return k / n
+
+
+def detect_borders(img):
+    """Return border insets as fractions {top, right, bottom, left}.
+
+    Runs at full resolution: downscaling blurs the sharp white->black film
+    edge into intermediate gray columns that confuse the detector.
+    """
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype("float32")
+    black = gray < FILM_BLACK
     sh, sw = gray.shape
 
-    def edge_depth(lines):
-        depth = 0
-        for line in lines:
-            if line.mean() >= LINE_COVERAGE:
-                depth += 1
-            else:
-                break
-        return depth
-
-    top = edge_depth(black[i, :] for i in range(sh))
-    bottom = edge_depth(black[sh - 1 - i, :] for i in range(sh))
-    left = edge_depth(black[:, j] for j in range(sw))
-    right = edge_depth(black[:, sw - 1 - j] for j in range(sw))
+    col_means = gray.mean(axis=0)
+    col_black = black.mean(axis=0)
+    row_means = gray.mean(axis=1)
+    row_black = black.mean(axis=1)
 
     insets = {
-        "top": top / sh,
-        "bottom": bottom / sh,
-        "left": left / sw,
-        "right": right / sw,
+        "top": _side_inset(row_means, row_black, sh),
+        "bottom": _side_inset(row_means[::-1], row_black[::-1], sh),
+        "left": _side_inset(col_means, col_black, sw),
+        "right": _side_inset(col_means[::-1], col_black[::-1], sw),
     }
-    for key, frac in insets.items():
-        if frac < MIN_BORDER_FRAC or frac > MAX_BORDER_FRAC:
-            insets[key] = 0.0
     # Guard against degenerate crops (borders must not swallow the image).
     if insets["top"] + insets["bottom"] >= 0.9:
         insets["top"] = insets["bottom"] = 0.0
