@@ -614,47 +614,56 @@ const handleUserFilterChange = (event) => {
 
   .settings-container {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    transform: translateX(calc(50vw - var(--settings-width) / 2)) translateY(100%);
+    bottom: 3dvh;
+    left: 50%;
+    transform: translateX(-50%) translateY(calc(100% + 4dvh));
 
-    width: var(--settings-width);
-    height: var(--settings-height);
+    width: min(1160px, 94vw);
+    height: min(920px, 94dvh);
+
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.13);
+    -webkit-backdrop-filter: blur(30px) saturate(1.25);
+    backdrop-filter: blur(30px) saturate(1.25);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+    overflow: hidden;
+    color: #fff;
 
     transition: all 300ms ease-in-out;
     transition-delay: 0s;
 
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     justify-content: flex-start;
   }
 
   &.active {
-    background: var(--overlay-background-color);
+    background: rgba(0, 0, 0, 0.25);
     pointer-events: auto;
     transition-delay: 0s;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(6px);
 
     .settings-container {
-      transform: translateX(calc(50vw - var(--settings-width) / 2)) translateY(0);
+      transform: translateX(-50%) translateY(0);
       transition-delay: 100ms;
     }
   }
 }
 
 .settings-header {
-  background: var(--panel-header-background-color);
-  // border-radius: 5px 5px 0 0;
+  background: transparent;
   display: flex;
   justify-content: space-between;
   align-items: center;
   height: 80px;
   width: 100%;
+  flex-shrink: 0;
   h1 {
     font-size: 20px;
     font-weight: 600;
-    color: var(--panel-header-text-color);
+    color: #fff;
     padding-left: 20px;
     display: flex;
     align-items: center;
@@ -677,32 +686,34 @@ const handleUserFilterChange = (event) => {
 
 .settings-tabs-container {
   display: flex;
-  gap: 5px;
-  padding-left: 20px;
-  padding-right: 20px;
-  background: var(--tabs-bar-background-color);
+  gap: 8px;
+  padding: 4px 24px 14px;
+  background: transparent;
   width: 100%;
-  
+  flex-wrap: wrap;
+  flex-shrink: 0;
+
   .settings-tab-spacer {
     flex-grow: 1;
   }
-  
+
   .settings-tab {
     background: var(--tabs-tab-background-color);
-    margin-top: 10px;
-    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: 0;
+    padding: 9px 16px;
     border-radius: var(--tabs-border-radius);
     cursor: pointer;
     transition: all 300ms ease-in-out;
 
     h2 {
-      font-size: 16px;
-      font-weight: 400;
+      font-size: 13.5px;
+      font-weight: 600;
       color: var(--tabs-tab-text-color);
       margin: 0;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       transition: all 100ms ease-in-out;
       svg {
         width: 20px;
@@ -734,8 +745,9 @@ const handleUserFilterChange = (event) => {
   position: relative;
   flex-grow: 1;
   width: 100%;
-  border-radius: 5px;
-  background: var(--panel-background-color);
+  border-radius: 0 0 24px 24px;
+  background: transparent;
+  overflow: hidden;
 
   .settings-tab-content {
     position: absolute;
@@ -748,14 +760,14 @@ const handleUserFilterChange = (event) => {
     align-items: flex-start;
     justify-content: flex-start;
 
-    background: var(--panel-background-color);
+    background: transparent;
 
     .tab-content-header {
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      background: var(--panel-subheader-background-color);
-      padding: 20px;
+      background: transparent;
+      padding: 8px 28px 16px;
       width: 100%;
 
       @media (min-width: 768px) {
@@ -789,7 +801,7 @@ const handleUserFilterChange = (event) => {
 
     .tab-content-body {
       display: block;
-      padding: 0px;
+      padding: 0 28px 28px;
       overflow-y: auto;
       flex-grow: 1;
       width: 100%;

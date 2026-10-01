@@ -95,3 +95,22 @@
 - Language selector now offers only English and German; other locales are no longer maintained in this fork
 - Major and continued German translation improvements
 - Added upload progress title translations for all supported locales
+
+## Immersive glass: login + settings (Option A)
+
+Carries the upload page's design language across the login splash screen and
+all settings pages:
+
+- Login: the fixed top logo is replaced by a centred logo + glass-card
+  composition (frosted card, glass inputs, white pill buttons) over the
+  full-bleed background.
+- Settings: the full-screen settings overlay becomes a floating frosted-glass
+  panel (rounded 24px) with the photo visible around it; tabs become glass
+  pills with a white active pill.
+- All 9 settings tabs (About, Stats, Branding, System, Email templates,
+  Users, All shares, My shares, My profile) are restyled at once via
+  theme-variable overrides scoped under `.settings-overlay` — no per-tab
+  edits needed. Inputs, tables, buttons, checkboxes and toggles inherit the
+  glass look.
+- Native `<select>` dropdown options are pinned to dark-on-white so they stay
+  readable on glass inputs.
