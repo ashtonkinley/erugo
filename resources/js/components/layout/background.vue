@@ -100,7 +100,7 @@ const changeBackground = () => {
         v-else-if="!isVideo(file)"
         class="backgrounds-item"
         :class="{ active: isActive(index) }"
-        :style="{ backgroundImage: `url(/backgrounds/${file}/optimized)`, backgroundPosition: backgroundPosition(file) }"
+        :style="{ backgroundImage: `url(/api/backgrounds/${file}/optimized)`, backgroundPosition: backgroundPosition(file) }"
       ></div>
     </template>
   </div>
