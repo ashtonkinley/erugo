@@ -18,44 +18,89 @@ const isVideo = (filename) => {
   return VIDEO_EXTENSIONS.includes(extension)
 }
 
-// Read-ahead: the next background is preloaded during the current cycle so
-// the swap only happens once the image is decoded. If it isn't ready when
-// the timer fires, the current image simply stays — never a black frame.
+// Slideshow preloading: the swap only happens once the target image is
+// decoded — never a black frame. A read-ahead preloads the next background
+// during the current cycle, and an eager warmer decodes everything else in
+// the background (staggered) so swaps stay on cadence like the original
+// crossfade. If the target isn't ready when the timer fires, the current
+// image simply stays.
 let nextIndex = null
 let nextReady = false
+const decodedCache = {} // index -> true once the optimized file is decoded
+const failedCache = {} // index -> true if the file failed to load
+const decodeQueue = []
+const DECODE_CONCURRENCY = 4
+let activeDecodes = 0
+
+const pumpDecodes = () => {
+  while (activeDecodes < DECODE_CONCURRENCY && decodeQueue.length) {
+    const index = decodeQueue.shift()
+    if (decodedCache[index] || failedCache[index]) continue
+    activeDecodes++
+    const img = new Image()
+    const done = (ok) => {
+      activeDecodes--
+      if (ok) {
+        decodedCache[index] = true
+        if (nextIndex === index) nextReady = true
+      } else {
+        failedCache[index] = true
+        if (nextIndex === index) nextReady = false
+      }
+      pumpDecodes()
+    }
+    img.onload = () => done(true)
+    img.onerror = () => done(false)
+    img.src = `/api/backgrounds/${backgroundFiles.value[index]}/optimized`
+  }
+}
+
+const queueDecode = (index, priority = false) => {
+  if (decodedCache[index] || failedCache[index]) return
+  if (!decodeQueue.includes(index)) {
+    if (priority) decodeQueue.unshift(index)
+    else decodeQueue.push(index)
+  }
+  pumpDecodes()
+}
 
 const pickRandomIndex = (exclude) => {
   const n = backgroundFiles.value.length
   if (n === 0) return null
   if (n === 1) return 0
-  let idx = Math.floor(Math.random() * n)
-  if (idx === exclude) idx = (idx + 1) % n
-  return idx
+  for (let tries = 0; tries < n; tries++) {
+    const idx = Math.floor(Math.random() * n)
+    if (idx !== exclude && !failedCache[idx]) return idx
+  }
+  return null
 }
 
 const preloadNext = (index) => {
   nextIndex = index
-  nextReady = false
+  nextReady = !!decodedCache[index]
   const file = backgroundFiles.value[index]
   if (isVideo(file)) {
     // Videos render on demand when active; keep existing behavior.
     nextReady = true
     return
   }
-  const img = new Image()
-  img.onload = () => {
-    if (nextIndex === index) nextReady = true
-  }
-  img.onerror = () => {
-    if (nextIndex === index) nextReady = false
-  }
-  img.src = `/api/backgrounds/${file}/optimized`
+  if (!nextReady) queueDecode(index, true)
 }
 
 const prepareNext = () => {
   const idx = pickRandomIndex(currentBackgroundIndex.value)
   if (idx == null) return
   preloadNext(idx)
+}
+
+// Decode every background up front (in the background) so the slideshow
+// never waits on a cold server-side WebP encode mid-cycle. Skipped when the
+// user has Data Saver on.
+const warmAll = () => {
+  if (navigator.connection && navigator.connection.saveData) return
+  backgroundFiles.value.forEach((file, i) => {
+    if (!isVideo(file) && i !== currentBackgroundIndex.value) queueDecode(i)
+  })
 }
 
 const isActive = (index) => {
@@ -98,8 +143,9 @@ onMounted(() => {
       if (data.files.length > 0) {
         currentBackgroundIndex.value = Math.floor(Math.random() * data.files.length)
         // Begin preloading the next background right away so the first
-        // transition is already covered.
+        // transition is already covered, then warm the rest.
         prepareNext()
+        warmAll()
       }
     })
   }
