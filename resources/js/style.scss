@@ -698,8 +698,8 @@ select option {
     }
 
     /* Entire panel opaque on mobile — no background image showing through.
-       High specificity to beat Vue scoped styles. */
-    .settings-overlay .settings-container {
+       Specificity (0,3,0) to beat .settings-overlay .settings-container[data-v-xxx] */
+    .settings-overlay.active .settings-container {
       background: #18181e;
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
