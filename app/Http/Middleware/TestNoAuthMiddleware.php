@@ -17,7 +17,8 @@ class TestNoAuthMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (env('ERUGO_TEST_NO_AUTH') === 'true' || env('ERUGO_TEST_NO_AUTH') === true) {
+        $testNoAuth = $_SERVER['ERUGO_TEST_NO_AUTH'] ?? $_ENV['ERUGO_TEST_NO_AUTH'] ?? env('ERUGO_TEST_NO_AUTH');
+        if ($testNoAuth === 'true' || $testNoAuth === true) {
             $admin = User::where('is_admin', true)->first() ?? User::first();
             if ($admin) {
                 auth()->setUser($admin);
