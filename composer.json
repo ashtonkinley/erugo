@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "fedeisas/laravel-mail-css-inliner": "^5.4",
+        "firebase/php-jwt": "^6.11",
         "intervention/image": "^3.11",
         "jumbojett/openid-connect-php": "^1.0",
         "kovah/laravel-socialite-oidc": "^0.3.0",
@@ -78,6 +79,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "policy": {
         }
     },
     "minimum-stability": "stable",
