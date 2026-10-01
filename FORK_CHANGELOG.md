@@ -1,3 +1,6 @@
+## 2026-10-01 — Random first background photo
+- The landing page no longer always opens on the same background photo: the slideshow now starts on a random image from your uploaded backgrounds, then keeps rotating randomly every 30 seconds as before.
+
 ## 2026-10-01 — Weekly expired-share cleanup with settings toggle
 - Expired-share cleanup now runs weekly (was daily) and can be toggled from Settings → Shares ("Automatically delete expired shares", `auto_clean_expired_shares`, on by default).
 - Deletion still honors the "Clean Files After" grace period; the toggle only controls whether the weekly run happens.

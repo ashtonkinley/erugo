@@ -33,6 +33,10 @@ onMounted(() => {
     interval.value = setInterval(changeBackground, slideshowSpeed.value * 1000)
     getBackgroundImages().then((data) => {
       backgroundFiles.value = data.files
+      //start on a random background instead of always showing the first file
+      if (data.files.length > 0) {
+        currentBackgroundIndex.value = Math.floor(Math.random() * data.files.length)
+      }
     })
   }
 })
