@@ -438,7 +438,7 @@ body {
   -webkit-backdrop-filter: blur(26px) saturate(1.25);
   backdrop-filter: blur(26px) saturate(1.25);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.2);
   z-index: 101;
   padding: 34px 32px;
   border-radius: 24px;
@@ -455,6 +455,12 @@ body {
       margin-bottom: 20px;
       font-size: 1.7rem;
       color: #fff;
+    }
+
+    /* Very light photos wash out white text: a gentle lift that keeps the
+       glass look. The white login pill keeps dark text, so it stays crisp. */
+    h1, p, a, label {
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
     }
 
     p {
@@ -592,6 +598,33 @@ select option {
   --scrollbar-thumb-color: rgba(255, 255, 255, 0.25);
   --scrollbar-track-color: transparent;
   --scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.4);
+
+  --label-text-color: #fff;
+
+  /* Sticky headers: the background must be fully opaque and sit on the
+     th cells themselves — with border-collapse the thead-level background
+     lets scrolled row text bleed through. */
+  table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #18181e;
+  }
+
+  /* Very light photos wash out white text: a gentle lift that keeps the
+     glass look. Kept off dark-text controls (white pills, active tab). */
+  .settings-container {
+    h1, h2, h3, h6, label,
+    .settings-tab,
+    table th, table td,
+    .settings-group-info, .setting-group-header p {
+      text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
+    }
+    .settings-tab.active,
+    table td .btn {
+      text-shadow: none;
+    }
+  }
 }
 
 .button-bar {
