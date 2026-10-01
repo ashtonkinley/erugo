@@ -218,6 +218,9 @@ body {
     z-index: 200;
     padding-bottom: 20px;
     padding-top: 10px;
+    // Soft halo so the white logo stays legible over light backgrounds.
+    // drop-shadow (not box-shadow) follows the logo's alpha channel.
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
   }
 }
 
