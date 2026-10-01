@@ -434,12 +434,16 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--panel-background-color);
-  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(26px) saturate(1.25);
+  backdrop-filter: blur(26px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
   z-index: 101;
-  padding: 20px;
-  border-radius: 10px;
-  width: min(400px, 100%);
+  padding: 34px 32px;
+  border-radius: 24px;
+  width: min(400px, calc(100vw - 40px));
+  color: #fff;
   .auth-container-inner {
     display: flex;
     flex-direction: column;
@@ -450,8 +454,144 @@ body {
     h1 {
       margin-bottom: 20px;
       font-size: 1.7rem;
+      color: #fff;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    a {
+      color: rgba(255, 255, 255, 0.9);
+      &:hover {
+        color: #fff;
+      }
+    }
+
+    label {
+      color: rgba(255, 255, 255, 0.88);
+    }
+
+    input {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      color: #fff;
+      border-radius: 13px;
+      &::placeholder {
+        color: rgba(255, 255, 255, 0.55);
+      }
+      &:focus {
+        border-color: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.17);
+      }
+    }
+
+    button.block {
+      border-radius: 999px;
+      background: #fff;
+      color: #141414;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 8px 26px rgba(0, 0, 0, 0.28);
+      &:hover {
+        background: rgba(255, 255, 255, 0.88);
+        color: #141414;
+      }
+      &.secondary {
+        background: transparent;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        color: #fff;
+        box-shadow: none;
+        &:hover {
+          background: rgba(255, 255, 255, 0.12);
+          color: #fff;
+        }
+      }
     }
   }
+}
+
+// native dropdown options stay readable on glass inputs
+select option {
+  color: #1a1a1a;
+  background-color: #fff;
+}
+
+/* ---------- Immersive glass: settings variable overrides ----------
+   The settings tabs are fully theme-variable driven, so overriding the
+   variables under .settings-overlay restyles all 9 tabs at once. */
+.settings-overlay {
+  --panel-background-color: rgba(255, 255, 255, 0.13);
+  --panel-background-color-alt: rgba(255, 255, 255, 0.09);
+  --panel-text-color: #fff;
+  --panel-text-color-alt: rgba(255, 255, 255, 0.62);
+
+  --panel-item-background-color: rgba(255, 255, 255, 0.1);
+  --panel-item-text-color: #fff;
+  --panel-item-background-color-hover: rgba(255, 255, 255, 0.2);
+  --panel-item-text-color-hover: #fff;
+
+  --panel-header-background-color: transparent;
+  --panel-header-text-color: #fff;
+
+  --panel-subheader-background-color: transparent;
+  --panel-subheader-text-color: #fff;
+
+  --panel-section-background-color: rgba(255, 255, 255, 0.08);
+  --panel-section-text-color: #fff;
+  --panel-section-background-color-alt: rgba(255, 255, 255, 0.12);
+  --panel-section-text-color-alt: #fff;
+
+  --panel-nav-item-background-color: rgba(255, 255, 255, 0.1);
+  --panel-nav-item-text-color: rgba(255, 255, 255, 0.85);
+  --panel-nav-item-background-color-hover: rgba(255, 255, 255, 0.22);
+  --panel-nav-item-text-color-hover: #fff;
+
+  --tabs-bar-background-color: transparent;
+  --tabs-tab-background-color: rgba(255, 255, 255, 0.1);
+  --tabs-tab-text-color: rgba(255, 255, 255, 0.85);
+  --tabs-tab-background-color-hover: rgba(255, 255, 255, 0.2);
+  --tabs-tab-text-color-hover: #fff;
+  --tabs-tab-background-color-active: #fff;
+  --tabs-tab-text-color-active: #141414;
+  --tabs-border-radius: 999px;
+
+  --table-background-color: transparent;
+  --table-text-color: #fff;
+  --table-header-background-color: rgba(255, 255, 255, 0.14);
+  --table-header-text-color: #fff;
+  --table-row-background-color: rgba(255, 255, 255, 0.05);
+  --table-row-text-color: #fff;
+  --table-row-background-color-alt: rgba(255, 255, 255, 0.09);
+  --table-row-text-color-alt: #fff;
+
+  --input-background-color: rgba(255, 255, 255, 0.12);
+  --input-text-color: #fff;
+  --input-border-color: rgba(255, 255, 255, 0.25);
+  --input-border-color-hover: rgba(255, 255, 255, 0.4);
+  --input-border-color-focus: rgba(255, 255, 255, 0.65);
+  --input-placeholder-color: rgba(255, 255, 255, 0.5);
+
+  --primary-button-background-color: #fff;
+  --primary-button-text-color: #141414;
+  --primary-button-background-color-hover: rgba(255, 255, 255, 0.85);
+  --primary-button-text-color-hover: #141414;
+  --secondary-button-background-color: rgba(255, 255, 255, 0.12);
+  --secondary-button-text-color: #fff;
+  --secondary-button-background-color-hover: rgba(255, 255, 255, 0.22);
+  --secondary-button-text-color-hover: #fff;
+
+  --button-border-radius: 999px;
+
+  --checkbox-checked-background-color: #fff;
+  --checkbox-checked-check-color: #141414;
+
+  --link-color: rgba(255, 255, 255, 0.9);
+  --link-color-hover: #fff;
+
+  --scrollbar-thumb-color: rgba(255, 255, 255, 0.25);
+  --scrollbar-track-color: transparent;
+  --scrollbar-thumb-hover-color: rgba(255, 255, 255, 0.4);
 }
 
 .button-bar {

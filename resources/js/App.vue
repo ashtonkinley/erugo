@@ -226,7 +226,7 @@ watch(
 <template>
   <TolgeeProvider>
     <Background />
-    <div class="logo-container" :class="{ 'logo-centered': store.mode === 'upload' }" v-if="store.mode !== 'setup' && !isLoading">
+    <div class="logo-container" :class="{ 'logo-centered': store.mode === 'upload' }" v-if="store.mode !== 'setup' && !isLoading && (store.isLoggedIn() || store.mode !== 'upload')">
       <a href="/"><img :src="logoUrl" alt="Erugo" id="logo" :style="{ width: `${logoWidth}px` }" /></a>
     </div>
 
@@ -243,7 +243,10 @@ watch(
 
     <div class="main" :class="{ 'auth-centred': !store.isLoggedIn() && store.mode === 'upload' }" v-show="!isLoading">
       <!-- auth: shows if user is not logged in and the mode is upload -->
-      <Auth v-show="!store.isLoggedIn() && store.mode === 'upload'" ref="auth" />
+      <div class="login-splash" v-show="!store.isLoggedIn() && store.mode === 'upload'">
+        <a href="/"><img :src="logoUrl" :style="{ width: `${logoWidth}px` }" alt="Erugo" class="splash-logo" /></a>
+        <Auth ref="auth" />
+      </div>
 
       <!-- uploader: shows if user is logged in and mode is upload -->
       <Uploader v-if="store.mode === 'upload' && store.isLoggedIn()" />
@@ -310,6 +313,19 @@ watch(
   height: 20px;
   margin-top: -5px;
   margin-left: -5px;
+}
+
+.login-splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+
+  .splash-logo {
+    max-width: min(340px, 74vw);
+    height: auto;
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+  }
 }
 </style>
 
