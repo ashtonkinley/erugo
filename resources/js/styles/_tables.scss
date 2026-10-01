@@ -139,7 +139,7 @@ table {
     padding: 6px 14px;
   }
   .my-shares-tab td:nth-child(3) .limit-label,
-  .my-shares-tab td:nth-child(3) .count_label {
+  .my-shares-tab tbody tr td:nth-child(3) .download_limit_manager .count_label {
     display: none;
   }
   .my-shares-tab td:nth-child(3) .download_count {
