@@ -149,8 +149,8 @@ su-exec erugo php artisan clear-settings-cache
 echo "Clearing templates cache..."
 su-exec erugo php artisan view:clear
 
-echo "Clearing config cache..."
-su-exec erugo php artisan config:clear
+echo "Caching config..."
+su-exec erugo php artisan config:cache
 
 echo "Clearing route cache..."
 su-exec erugo php artisan route:clear
