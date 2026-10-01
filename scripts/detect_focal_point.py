@@ -23,11 +23,11 @@ Border detection: scan inward from each edge at full resolution
 (downscaling blurs the sharp white->black film edge). Two lab-scan border
 styles are handled: a black film rebate right at the image edge, and a
 white scanner surround outside the black film strip ([white][black][photo]).
-Per edge: skip the white surround, allow up to 2 gray transition columns,
-then require a black film strip (>=85% of the line darker than gray 25).
-The film rebate is very black (mean ~15), so the strict threshold keeps
-dark photo content safe. Thin strips (<0.3% of the dimension) are ignored
-to skip JPEG edge noise.
+Per edge: skip the white surround, allow a short gray lead-in, then
+consume the black run; require a black core (>=80% film-black).
+The film rebate is very black (mean ~15), so the strict core threshold
+keeps dark photo content safe. Thin cores (<0.15% of the dimension) are
+ignored to skip JPEG edge noise.
 
 Usage: python3 detect_focal_point.py /path/to/image.jpg [--crop-output /path/to/cropped.jpg]
 Output (stdout, JSON):
@@ -53,15 +53,15 @@ SCORE_THRESHOLD = 0.6
 #      [white][black][photo].
 # Both are detected per edge at full resolution (downscaling blurs the
 # sharp white->black film edge) in three phases: strict white surround,
-# up to 2 gray transition columns, then the required black film strip.
-# The film rebate is very black (mean ~15); the strict threshold keeps
-# dark photo content (shadows, dark backgrounds) safe. A black strip is
-# required in all cases — that is the distinctive film-border signature.
+# short gray lead-in, then the black run. A black core (>=80% of the line
+# darker than gray 25) is required — that is the distinctive film-border
+# signature. The film rebate is very black (mean ~15); the strict core
+# threshold keeps dark photo content (shadows, dark backgrounds) safe.
 FILM_BLACK = 25         # grayscale value below which a pixel is film-black
 WHITE_LEVEL = 180       # line mean above which it is white surround
-STRIP_COVERAGE = 0.85   # fraction of a line that must be film-black for strip
-MIN_STRIP_FRAC = 0.003  # ignore thinner strips (JPEG edge noise)
-MAX_STRIP_FRAC = 0.06   # black strip sanity cap per side
+STRIP_COVERAGE = 0.8    # fraction of a line that must be film-black for core
+MIN_STRIP_FRAC = 0.0015 # ignore thinner cores (JPEG edge noise)
+MAX_STRIP_FRAC = 0.03   # black core sanity cap per side (film is thin)
 MAX_TOTAL_FRAC = 0.12   # surround+strip combined sanity cap per side
 
 
@@ -74,30 +74,45 @@ def _side_inset(line_means, line_black_fracs, n):
 
     line_means / line_black_fracs are per-line (row or column) stats
     ordered from the edge inward; n is the dimension length.
-    Three phases: strict white surround, up to 2 transition columns,
-    then the required black film strip.
+
+    Three phases: skip the white scanner surround, allow a short gray
+    lead-in (the white->black transition) to reach the black run, then
+    consume the black run. A black core (>=80% film-black) is required
+    within the run — that is the distinctive film-border signature.
     """
     i = 0
     # Phase 1: white scanner surround.
     while i < n and line_means[i] > WHITE_LEVEL:
         i += 1
-    # Phase 2: up to 2 transition columns (gray blur between white/black).
+    # Phase 2: short gray lead-in (white->black transition) to the black run.
+    # A sharp film edge transitions in a few pixels; a photo gradient takes
+    # longer. Cap at 0.5% to reject gradients.
     j = i
-    skipped = 0
-    while j < n and skipped < 2 and line_means[j] > 50 \
-            and line_black_fracs[j] <= STRIP_COVERAGE:
+    while j < n and line_black_fracs[j] <= 0.7 and (j - i) / n < 0.005:
         j += 1
-        skipped += 1
-    # Phase 3: the black film strip (required).
+    # Phase 3: consume the black run. The 0.7 threshold stops at dark
+    # photo content (which can be ~0.6 black) instead of eating into it.
     k = j
-    while k < n and line_black_fracs[k] > STRIP_COVERAGE:
+    while k < n and line_black_fracs[k] > 0.7:
         k += 1
-    strip_frac = (k - j) / n
-    if strip_frac < MIN_STRIP_FRAC or strip_frac > MAX_STRIP_FRAC:
+    if k <= j:
         return 0.0
-    if k / n > MAX_TOTAL_FRAC:
+    # Require a black core within the run — the film-border signature.
+    # The core must be thin (film borders are narrow); a long "core" is a
+    # dark photo gradient, not a border.
+    core_rows = [r for r in range(j, k) if line_black_fracs[r] > 0.8]
+    core_len = len(core_rows)
+    if core_len / n < MIN_STRIP_FRAC:
         return 0.0
-    return k / n
+    if core_len / n > MAX_STRIP_FRAC:
+        return 0.0
+    # Crop tight to the core plus a small transition margin. The black run
+    # can extend into dark photo content; cropping to the run end would
+    # eat the photo.
+    inset = (core_rows[-1] + 1 + int(0.005 * n)) / n
+    if inset > MAX_TOTAL_FRAC:
+        return 0.0
+    return inset
 
 
 def detect_borders(img):
