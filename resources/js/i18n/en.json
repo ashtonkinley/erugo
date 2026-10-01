@@ -1013,7 +1013,10 @@
     "download": {
       "invalid_password": "Share password is invalid",
       "password_required": "You must enter the password to download this share.",
-      "password_required_short": "Enter password"
+      "password_required_short": "Enter password",
+      "shared_with_you": "Shared with you",
+      "view_files": "View files",
+      "hide_files": "Hide files"
     },
     "download_limit_reached": "Download Limit Reached",
     "download_limit_reached.message": "The share you are trying to download has reached its download limit. Please ask the share creator to increase the download limit.",

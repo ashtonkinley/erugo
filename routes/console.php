@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Schedule;
+use Illuminate\Support\Facades\Storage;
 use App\Jobs\cleanExpiredShares;
 use App\Jobs\SyncBestOfBackgrounds;
 use App\Jobs\maintainDb;
@@ -10,7 +11,9 @@ use App\Jobs\sendDeletionWarningEmails;
 use App\Jobs\pruneLogs;
 use App\Jobs\updateLegacySharePaths;
 use App\Jobs\backUpDatabase;
+use App\Models\BackgroundFocalPoint;
 use App\Services\SettingsService;
+use App\Services\SubjectDetectionService;
 
 //daily jobs
 Schedule::job(cleanExpiredShares::class)->daily();
@@ -89,6 +92,27 @@ Artisan::command('backgrounds:unblock {filename?} {--all}', function () {
         $this->info("{$filename} was not blocked.");
     }
 })->purpose('Allow a removed background to sync again');
+
+Artisan::command('backgrounds:detect-subjects {--force}', function () {
+    $force = $this->option('force');
+    $service = app(SubjectDetectionService::class);
+    $files = array_values(array_filter(
+        Storage::disk('backgrounds')->files(''),
+        fn ($f) => in_array(strtolower(pathinfo($f, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)
+    ));
+    $done = 0;
+    $skipped = 0;
+    foreach ($files as $file) {
+        $base = basename($file);
+        if (!$force && BackgroundFocalPoint::where('filename', $base)->exists()) {
+            $skipped++;
+            continue;
+        }
+        $service->detectFor($base);
+        $done++;
+    }
+    $this->info("Subject detection complete: {$done} processed, {$skipped} already had focal points.");
+})->purpose('Detect subject focal points for background images (smart cropping)');
 
 Artisan::command('clear-settings-cache', function () {
     app(SettingsService::class)->clearCache();

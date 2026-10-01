@@ -9,6 +9,7 @@ const VIDEO_EXTENSIONS = ['mp4', 'webm']
 const slideshowSpeed = ref(30)
 const useMyBackgrounds = ref(false)
 const backgroundFiles = ref([])
+const focalPoints = ref({})
 const interval = ref(null)
 const currentBackgroundIndex = ref(0)
 
@@ -19,6 +20,16 @@ const isVideo = (filename) => {
 
 const isActive = (index) => {
   return index === currentBackgroundIndex.value
+}
+
+// Smart-crop: position the cover-crop on the detected subject instead of
+// always centering, so portrait subjects aren't cut out on narrow viewports.
+const backgroundPosition = (file) => {
+  const focal = focalPoints.value[file]
+  if (focal && focal.x != null && focal.y != null) {
+    return `${focal.x}% ${focal.y}%`
+  }
+  return 'center'
 }
 
 onMounted(() => {
@@ -33,6 +44,7 @@ onMounted(() => {
     interval.value = setInterval(changeBackground, slideshowSpeed.value * 1000)
     getBackgroundImages().then((data) => {
       backgroundFiles.value = data.files
+      focalPoints.value = data.focal_points || {}
       //start on a random background instead of always showing the first file
       if (data.files.length > 0) {
         currentBackgroundIndex.value = Math.floor(Math.random() * data.files.length)
@@ -79,7 +91,7 @@ const changeBackground = () => {
         v-else-if="!isVideo(file)"
         class="backgrounds-item"
         :class="{ active: isActive(index) }"
-        :style="{ backgroundImage: `url(/backgrounds/${file})` }"
+        :style="{ backgroundImage: `url(/backgrounds/${file})`, backgroundPosition: backgroundPosition(file) }"
       ></div>
     </template>
   </div>

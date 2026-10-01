@@ -74,6 +74,8 @@ RUN apk add --no-cache \
     zip \
     php83-fpm \
     caddy \
+    python3 \
+    py3-opencv \
     && ln -s /usr/bin/php83 /usr/bin/php \
     && rm -rf /var/cache/apk/*
 

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Utils\FileHelper;
 use App\Models\Setting;
 use App\Jobs\SyncBestOfBackgrounds;
+use App\Services\SubjectDetectionService;
 
 class BackgroundsController extends Controller
 {
@@ -53,11 +54,14 @@ class BackgroundsController extends Controller
 
         $files = array_values($files);
 
+        $focalPoints = app(SubjectDetectionService::class)->focalPointsFor($files);
+
         return response()->json([
             'status' => 'success',
             'message' => 'Background files listed successfully',
             'data' => [
                 'files' => $files,
+                'focal_points' => $focalPoints,
             ]
         ]);
     }
@@ -83,6 +87,10 @@ class BackgroundsController extends Controller
             $fileName = $file->getClientOriginalName();
             $safeFilename = FileHelper::sanitizeFilename($fileName);
             $file->storeAs('', $safeFilename, 'backgrounds');
+
+            // Detect the subject focal point for smart cropping (no-op for
+            // videos; NULL when no subject is found).
+            app(SubjectDetectionService::class)->detectFor($safeFilename);
 
             return response()->json([
                 'status' => 'success',
@@ -128,6 +136,8 @@ class BackgroundsController extends Controller
             //delete the cached thumbs (now always .webp)
             $thumbFilename = pathinfo($safeFile, PATHINFO_FILENAME) . '.webp';
             Storage::disk('backgrounds')->delete('cache/thumbs/' . $thumbFilename);
+            //forget any stored subject focal point for this file
+            app(SubjectDetectionService::class)->forgetFor($safeFile);
 
             // Check if there are any remaining background files
             $remainingFiles = array_filter(

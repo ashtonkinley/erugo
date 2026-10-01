@@ -7,6 +7,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Setting;
+use App\Services\SubjectDetectionService;
 
 /**
  * Sync the lab's monthly "10 best" photos into the rotating landing-page
@@ -161,6 +162,10 @@ class SyncBestOfBackgrounds implements ShouldQueue
         if (is_resource($stream)) {
           fclose($stream);
         }
+
+        // Detect the subject focal point for smart cropping (stores NULL
+        // when no subject is found; the frontend then center-crops).
+        app(SubjectDetectionService::class)->detectFor($target);
 
         $added++;
         Log::info('BestOf background added', ['file' => $target]);

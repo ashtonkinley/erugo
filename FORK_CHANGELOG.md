@@ -1,3 +1,7 @@
+## 2026-10-01 — Subject-aware background cropping + editorial download page
+- **Smart-crop backgrounds:** new `background_focal_points` table stores one subject focal point per background image, detected with YuNet face detection (`scripts/detect_focal_point.py`, OpenCV via `py3-opencv` in the image). Detection runs automatically for newly uploaded and BestOf-synced backgrounds; `backgrounds:detect-subjects` backfills existing ones (`--force` to redo). The frontend now renders `background-position: x% y%` instead of always centering, so portrait subjects stay in frame on both mobile and desktop. No subject found → centered crop, i.e. the old behavior; nothing gets worse.
+- **Download page redesign (Option C):** the share download page is now a full-bleed editorial treatment — background photo, bottom gradient scrim, small supporting share name, and a prominent pill download button in the theme's primary color. File list is behind a "View files" toggle; sender message, password flow, and all error states (expired / limit reached / not found / loading) preserved.
+
 ## 2026-10-01 — Rolled back the weekly cleanup toggle
 - Reverted the "Automatically delete expired shares" toggle: the existing "Clean Files After" setting already covers this (now set to 7 days), with the original daily cleanup schedule restored.
 

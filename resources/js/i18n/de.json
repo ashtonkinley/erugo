@@ -992,7 +992,10 @@
     "download": {
       "invalid_password": "Freigabepasswort ist ungültig",
       "password_required": "Sie müssen das Passwort eingeben, um diese Freigabe herunterzuladen.",
-      "password_required_short": "Passwort eingeben"
+      "password_required_short": "Passwort eingeben",
+      "shared_with_you": "Für dich freigegeben",
+      "view_files": "Dateien anzeigen",
+      "hide_files": "Dateien ausblenden"
     },
     "download_limit_reached": "Download-Limit erreicht",
     "download_limit_reached.message": "Die Freigabe, die Sie herunterladen möchten, hat ihr Download-Limit erreicht. Bitten Sie den Ersteller der Freigabe, das Download-Limit zu erhöhen.",
