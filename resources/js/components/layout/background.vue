@@ -37,31 +37,52 @@ const pumpDecodes = () => {
     const index = decodeQueue.shift()
     if (decodedCache[index] || failedCache[index]) continue
     activeDecodes++
-    const img = new Image()
-    const done = (ok) => {
-      activeDecodes--
-      if (ok) {
-        decodedCache[index] = true
-        if (nextIndex === index) nextReady = true
-      } else {
-        failedCache[index] = true
-        if (nextIndex === index) nextReady = false
-      }
-      pumpDecodes()
-    }
-    img.onload = () => done(true)
-    img.onerror = () => done(false)
-    img.src = `/api/backgrounds/${backgroundFiles.value[index]}/optimized`
+    // Warm the server + HTTP cache with a plain fetch: the bytes are
+    // downloaded without decoding the bitmap. Decoding 70 full-screen
+    // photos up front via `new Image()` exhausted Mobile Safari's tab
+    // memory and crash-looped the page; the 0.5s crossfade covers the
+    // ~50ms local decode at swap time.
+    fetch(`/api/backgrounds/${backgroundFiles.value[index]}/optimized`)
+      .then((res) => {
+        if (!res.ok) throw new Error('warm failed')
+        return res.arrayBuffer() // drain the body so bytes land in cache
+      })
+      .then(() => markWarmed(index, true))
+      .catch(() => markWarmed(index, false))
   }
 }
 
-const queueDecode = (index, priority = false) => {
-  if (decodedCache[index] || failedCache[index]) return
-  if (!decodeQueue.includes(index)) {
-    if (priority) decodeQueue.unshift(index)
-    else decodeQueue.push(index)
+const markWarmed = (index, ok) => {
+  activeDecodes--
+  if (ok) {
+    decodedCache[index] = true
+    if (nextIndex === index) nextReady = true
+  } else {
+    failedCache[index] = true
+    if (nextIndex === index) nextReady = false
   }
   pumpDecodes()
+}
+
+const queueDecode = (index) => {
+  if (decodedCache[index] || failedCache[index]) return
+  if (!decodeQueue.includes(index)) decodeQueue.push(index)
+  pumpDecodes()
+}
+
+// The single immediate-next background is fully decoded (one bitmap is
+// harmless) so its swap is instant with zero black risk.
+const decodeNext = (index) => {
+  const img = new Image()
+  img.onload = () => {
+    decodedCache[index] = true
+    if (nextIndex === index) nextReady = true
+  }
+  img.onerror = () => {
+    failedCache[index] = true
+    if (nextIndex === index) nextReady = false
+  }
+  img.src = `/api/backgrounds/${backgroundFiles.value[index]}/optimized`
 }
 
 const pickRandomIndex = (exclude) => {
@@ -84,7 +105,7 @@ const preloadNext = (index) => {
     nextReady = true
     return
   }
-  if (!nextReady) queueDecode(index, true)
+  if (!nextReady) decodeNext(index)
 }
 
 const prepareNext = () => {
