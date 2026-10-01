@@ -574,31 +574,6 @@ const handleDeleteAuthProvider = async (id) => {
                     placeholder="Login to your account to upload files."
                   />
                 </div>
-
-                <div class="setting-group-body-item">
-                  <label for="default_language">{{ $t('settings.system.default_language') }}</label>
-                  <select id="default_language" v-model="settings.default_language">
-                    <!-- English-->
-                    <option value="en">{{ t('settings.system.languages.english') }}</option>
-                    <!-- German-->
-                    <option value="de">{{ t('settings.system.languages.german') }}</option>
-                    <!-- French-->
-                    <option value="fr">{{ t('settings.system.languages.french') }}</option>
-                    <!-- Italian-->
-                    <option value="it">{{ t('settings.system.languages.italian') }}</option>
-                    <!-- Dutch-->
-                    <option value="nl">{{ t('settings.system.languages.dutch') }}</option>
-                    <!-- Portuguese-->
-                    <option value="pt">{{ t('settings.system.languages.portuguese') }}</option>
-                  </select>
-                </div>
-
-                <div class="setting-group-body-item mt-3">
-                  <div class="checkbox-container">
-                    <input type="checkbox" id="show_language_selector" v-model="settings.show_language_selector" />
-                    <label for="show_language_selector">{{ $t('settings.system.show_language_selector') }}</label>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -612,12 +587,6 @@ const handleDeleteAuthProvider = async (id) => {
 
               <h6>{{ $t('settings.system.login_message') }}</h6>
               <p>{{ $t('settings.system.login_message_description') }}</p>
-
-              <h6>{{ $t('settings.system.default_language') }}</h6>
-              <p>{{ $t('settings.system.default_language_description') }}</p>
-
-              <h6>{{ $t('settings.system.show_language_selector') }}</h6>
-              <p>{{ $t('settings.system.show_language_selector_description') }}</p>
             </div>
           </div>
         </div>

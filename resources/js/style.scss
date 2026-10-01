@@ -201,6 +201,15 @@ body {
   @media (min-width: 900px) {
     margin-bottom: -60px;
   }
+
+  // Logged-out upload view: centre the login card horizontally in the
+  // viewport, matching the centred upload panel. (#app uses
+  // align-items: flex-start, so the 500px column needs its own centring;
+  // vertical centring already comes from justify-content: center above.)
+  &.auth-centred {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .logo-container {

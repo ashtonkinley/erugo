@@ -3,7 +3,6 @@ import { ref, onMounted, nextTick, watch, computed } from 'vue'
 
 
 //components
-import LanguageSelector from './components/languageSelector.vue'
 import Uploader from './components/uploader.vue'
 import Downloader from './components/downloader.vue'
 import Auth from './components/auth.vue'
@@ -227,7 +226,6 @@ watch(
 <template>
   <TolgeeProvider>
     <Background />
-    <LanguageSelector />
     <div class="logo-container" :class="{ 'logo-centered': store.mode === 'upload' }" v-if="store.mode !== 'setup' && !isLoading">
       <a href="/"><img :src="logoUrl" alt="Erugo" id="logo" :style="{ width: `${logoWidth}px` }" /></a>
     </div>
@@ -243,7 +241,7 @@ watch(
       </div>
     </Transition>
 
-    <div class="main" v-show="!isLoading">
+    <div class="main" :class="{ 'auth-centred': !store.isLoggedIn() && store.mode === 'upload' }" v-show="!isLoading">
       <!-- auth: shows if user is not logged in and the mode is upload -->
       <Auth v-show="!store.isLoggedIn() && store.mode === 'upload'" ref="auth" />
 
