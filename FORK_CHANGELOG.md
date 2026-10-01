@@ -1,4 +1,5 @@
 ## 2026-10-01 — BestOf backgrounds respect manual deletions
+- Fixed `bestof_backgrounds_blocked` writes failing on NOT NULL `settings.group` column.
 - Deleting an auto-synced background via the X button now sticks: the delete endpoint records the filename in a `bestof_backgrounds_blocked` setting and the daily sync skips blocked files instead of re-copying them.
 - New commands: `backgrounds:blocked` (list removed backgrounds), `backgrounds:unblock {filename}` / `backgrounds:unblock --all` (allow re-sync).
 

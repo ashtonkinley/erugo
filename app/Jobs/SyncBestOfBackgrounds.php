@@ -68,7 +68,7 @@ class SyncBestOfBackgrounds implements ShouldQueue
       $blocked[] = $filename;
       Setting::updateOrCreate(
         ['key' => self::BLOCKED_SETTING_KEY],
-        ['value' => json_encode(array_values($blocked))]
+        ['value' => json_encode(array_values($blocked)), 'group' => 'system']
       );
       Log::info('BestOf background blocked by user', ['file' => $filename]);
     }
@@ -91,7 +91,7 @@ class SyncBestOfBackgrounds implements ShouldQueue
     }
     Setting::updateOrCreate(
       ['key' => self::BLOCKED_SETTING_KEY],
-      ['value' => json_encode(array_values($blocked))]
+      ['value' => json_encode(array_values($blocked)), 'group' => 'system']
     );
     return $count;
   }
