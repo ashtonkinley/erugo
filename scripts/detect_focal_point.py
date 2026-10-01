@@ -28,6 +28,13 @@ consume the black run; require a black core (>=80% film-black).
 The film rebate is very black (mean ~15), so the strict core threshold
 keeps dark photo content safe. Thin cores (<0.15% of the dimension) are
 ignored to skip JPEG edge noise.
+Each edge is evaluated twice: once on whole-line stats and once in 16
+segments (a border counts when at least half the segments show the
+film-border signature; median inset wins). The segment pass tolerates
+local strip interruptions (light leaks, dust, uneven rebate) that used to
+veto the whole side, without loosening the per-segment strictness that
+keeps dark photo content safe. Either pass may detect; the larger inset
+wins, so previously correct detections are never lost.
 
 Usage: python3 detect_focal_point.py /path/to/image.jpg [--crop-output /path/to/cropped.jpg]
 Output (stdout, JSON):
@@ -41,6 +48,8 @@ import argparse
 import json
 import os
 import sys
+
+import numpy as np
 
 MODEL_FILENAME = "face_detection_yunet_2023mar.onnx"
 SCORE_THRESHOLD = 0.6
@@ -63,6 +72,9 @@ STRIP_COVERAGE = 0.8    # fraction of a line that must be film-black for core
 MIN_STRIP_FRAC = 0.0015 # ignore thinner cores (JPEG edge noise)
 MAX_STRIP_FRAC = 0.03   # black core sanity cap per side (film is thin)
 MAX_TOTAL_FRAC = 0.12   # surround+strip combined sanity cap per side
+SEGMENTS = 16           # per-edge segments for interrupted-strip tolerance;
+                        # a side counts as bordered when >= half the segments
+                        # show the film-border signature (median inset wins)
 
 
 def fail(reason: str) -> None:
@@ -115,6 +127,73 @@ def _side_inset(line_means, line_black_fracs, n):
     return inset
 
 
+def _row_segment_stats(gray, sh, sw):
+    """Per-row stats split into SEGMENTS across the width.
+
+    Returns (means, black_fracs) shaped (SEGMENTS, sh): for segment s,
+    row y, the mean gray and the fraction of film-black pixels.
+    """
+    means = np.zeros((SEGMENTS, sh))
+    fracs = np.zeros((SEGMENTS, sh))
+    for s in range(SEGMENTS):
+        x0 = s * sw // SEGMENTS
+        x1 = (s + 1) * sw // SEGMENTS
+        seg = gray[:, x0:x1]
+        means[s] = seg.mean(axis=1)
+        fracs[s] = (seg < FILM_BLACK).mean(axis=1)
+    return means, fracs
+
+
+def _col_segment_stats(gray, sh, sw):
+    """Per-column stats split into SEGMENTS across the height.
+
+    Returns (means, black_fracs) shaped (SEGMENTS, sw).
+    """
+    means = np.zeros((SEGMENTS, sw))
+    fracs = np.zeros((SEGMENTS, sw))
+    for s in range(SEGMENTS):
+        y0 = s * sh // SEGMENTS
+        y1 = (s + 1) * sh // SEGMENTS
+        seg = gray[y0:y1, :]
+        means[s] = seg.mean(axis=0)
+        fracs[s] = (seg < FILM_BLACK).mean(axis=0)
+    return means, fracs
+
+
+def _side_multi(means_seg, fracs_seg, n):
+    """Border inset for one edge from its per-segment line stats.
+
+    Each segment runs the same strict three-phase test; the side counts
+    as bordered when at least half the segments show the film-border
+    signature, and the median inset wins. Local strip interruptions
+    (light leaks, dust) fail their own segments without vetoing the side,
+    while the per-segment strictness still rejects dark photo gradients.
+    """
+    hits = []
+    for s in range(SEGMENTS):
+        d = _side_inset(means_seg[s], fracs_seg[s], n)
+        if d > 0:
+            hits.append(d)
+    if len(hits) < SEGMENTS // 2:
+        return 0.0
+    return float(np.median(hits))
+
+
+def _side_hybrid(line_means, line_black, seg_means, seg_fracs, n):
+    """Border inset for one edge, combining the full-line and segment tests.
+
+    The full-line test catches uniform strips; the segment test catches
+    strips with local interruptions (light leaks, dust) that drag the
+    whole-line black fraction below threshold. Either may detect; the
+    larger inset wins. Detections the old full-line logic made are always
+    preserved, and the segment test uses the same strict per-segment
+    signature, so dark photo gradients stay rejected.
+    """
+    full = _side_inset(line_means, line_black, n)
+    seg = _side_multi(seg_means, seg_fracs, n)
+    return max(full, seg)
+
+
 def detect_borders(img):
     """Return border insets as fractions {top, right, bottom, left}.
 
@@ -125,16 +204,27 @@ def detect_borders(img):
     black = gray < FILM_BLACK
     sh, sw = gray.shape
 
+    # Full-line stats (as before).
     col_means = gray.mean(axis=0)
     col_black = black.mean(axis=0)
     row_means = gray.mean(axis=1)
     row_black = black.mean(axis=1)
 
+    # Per-segment stats for interrupted strips.
+    seg_row_means, seg_row_black = _row_segment_stats(gray, sh, sw)
+    seg_col_means, seg_col_black = _col_segment_stats(gray, sh, sw)
+
     insets = {
-        "top": _side_inset(row_means, row_black, sh),
-        "bottom": _side_inset(row_means[::-1], row_black[::-1], sh),
-        "left": _side_inset(col_means, col_black, sw),
-        "right": _side_inset(col_means[::-1], col_black[::-1], sw),
+        "top": _side_hybrid(row_means, row_black,
+                            seg_row_means, seg_row_black, sh),
+        "bottom": _side_hybrid(row_means[::-1], row_black[::-1],
+                               seg_row_means[:, ::-1], seg_row_black[:, ::-1],
+                               sh),
+        "left": _side_hybrid(col_means, col_black,
+                             seg_col_means, seg_col_black, sw),
+        "right": _side_hybrid(col_means[::-1], col_black[::-1],
+                              seg_col_means[:, ::-1], seg_col_black[:, ::-1],
+                              sw),
     }
     # Guard against degenerate crops (borders must not swallow the image).
     if insets["top"] + insets["bottom"] >= 0.9:
