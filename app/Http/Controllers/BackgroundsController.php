@@ -209,6 +209,48 @@ class BackgroundsController extends Controller
         return response($encoded)->header('Content-Type', 'image/webp');
     }
 
+    public function useOptimized($file)
+    {
+        // Validate path parameter to prevent path traversal attacks
+        if (!FileHelper::validatePathParameter($file)) {
+            abort(400, 'Invalid filename');
+        }
+
+        // Use basename as additional protection
+        $safeFile = basename($file);
+
+        // For optimized, we always use .webp extension for the cached file
+        $optFilename = pathinfo($safeFile, PATHINFO_FILENAME) . '.webp';
+        $cachedPath = Storage::disk('backgrounds')->path('cache/optimized/' . $optFilename);
+
+        // Check if we have a cached version
+        if (file_exists($cachedPath)) {
+            return response()->file($cachedPath, ['Content-Type' => 'image/webp']);
+        }
+
+        $fullPath = Storage::disk('backgrounds')->path($safeFile);
+        if (!file_exists($fullPath)) {
+            abort(404);
+        }
+
+        // Videos: serve original (no optimized transcode for backgrounds)
+        if ($this->isVideo($safeFile)) {
+            return $this->streamVideo($fullPath, $safeFile);
+        }
+
+        // For images: scale to 1280px wide, WebP quality 80 (mobile-friendly)
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($fullPath);
+
+        $image->scale(width: 1280);
+        $encoded = $image->toWebp(80);
+
+        // Save to cache/optimized folder
+        Storage::disk('backgrounds')->put('cache/optimized/' . $optFilename, $encoded);
+
+        return response($encoded)->header('Content-Type', 'image/webp');
+    }
+
     public function useThumb($file)
     {
         // Validate path parameter to prevent path traversal attacks

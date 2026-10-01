@@ -254,6 +254,8 @@ body {
   height: 100%;
   z-index: -100;
   overflow: hidden;
+  // Dark placeholder while background images load (avoids white flash)
+  background-color: #141419;
 
   .backgrounds-item {
     position: absolute;

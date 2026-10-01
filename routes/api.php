@@ -206,6 +206,7 @@ Route::group([], function ($router) {
     //use background image [public]
     Route::get('/backgrounds', [BackgroundsController::class, 'list'])->name('backgrounds.list');
     Route::get('/backgrounds/{file}/thumb', [BackgroundsController::class, 'useThumb'])->name('backgrounds.useThumb');
+    Route::get('/backgrounds/{file}/optimized', [BackgroundsController::class, 'useOptimized'])->name('backgrounds.useOptimized');
     Route::get('/backgrounds/{file}', [BackgroundsController::class, 'use'])->name('backgrounds.use');
 
     //serve favicon [public]
