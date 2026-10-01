@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Schedule;
 use App\Jobs\cleanExpiredShares;
+use App\Jobs\SyncBestOfBackgrounds;
 use App\Jobs\maintainDb;
 use App\Jobs\sendExpiryWarningEmails;
 use App\Jobs\sendExpiredWarningEmails;
@@ -18,6 +19,7 @@ Schedule::job(sendDeletionWarningEmails::class)->daily();
 Schedule::job(maintainDb::class)->daily();
 Schedule::job(pruneLogs::class)->daily();
 Schedule::job(backUpDatabase::class)->daily();
+Schedule::job(SyncBestOfBackgrounds::class)->daily();
 //hourly jobs
 Schedule::job(sendExpiredWarningEmails::class)->hourly();
 //manually run jobs
@@ -52,6 +54,10 @@ Artisan::command('update-legacy-share-paths', function () {
 Artisan::command('back-up-database', function () {
     backUpDatabase::dispatch();
 })->purpose('Back up the database');
+
+Artisan::command('backgrounds:sync-bestof', function () {
+    SyncBestOfBackgrounds::dispatch();
+})->purpose('Sync monthly 10-best photos into rotating backgrounds');
 
 Artisan::command('clear-settings-cache', function () {
     app(SettingsService::class)->clearCache();

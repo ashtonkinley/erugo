@@ -1,3 +1,8 @@
+## 2026-10-01 — BestOf backgrounds auto-sync
+- New `SyncBestOfBackgrounds` job + `backgrounds:sync-bestof` artisan command: copies each month folder's `_10Best` photos from the lab's BestOf archive into the rotating landing-page backgrounds (top-level, prefixed with the month folder name so months can't collide). Underscore-prefixed exports (monthly collage, .psd) and non-images are skipped.
+- Idempotent: already-synced files and months without a `_10Best` folder are skipped; a missing BestOf mount logs a warning instead of failing.
+- Scheduled daily via the existing scheduler. Source path is `BESTOF_PATH` (default `/bestof`, read-only mount); new `config/mtlanalogue.php` holds it so it survives config:cache, and `BESTOF_` was added to the cron env allow-list in start-container.
+
 # FORK Changelog
 
 > **Translation policy of this fork:** Only **English and German** are actively maintained and offered in the UI. The language selector has been reduced to these two languages, and the other locale files (`fr`, `it`, `nl`, `pt`, `pt-BR`) still exist but are no longer updated when UI strings change.
