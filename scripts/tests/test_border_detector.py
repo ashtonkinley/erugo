@@ -7,12 +7,14 @@ Exit 0 when every fixture behaves as expected, 1 otherwise.
 import argparse, json, subprocess, sys, os
 
 CASES = {
-    # name: (expected borders or None-checks)
-    '01_border_all':      {'top': (0.02, 0.05), 'bottom': (0.03, 0.06), 'left': (0.015, 0.04), 'right': (0.015, 0.04)},
-    '02_white_surround':  {'top': (0.02, 0.09), 'bottom': (0.02, 0.09), 'left': (0.02, 0.09), 'right': (0.02, 0.09)},
-    '03_interrupted_top': {'top': (0.02, 0.06), 'bottom': (0.0, 0.0), 'left': (0.0, 0.0), 'right': (0.0, 0.0)},
+    # name: expected per-side inset ranges (fractions). Strips are thin on
+    # purpose: the detector caps the black core at 3% per side (film is
+    # thin), so fixtures must live inside the real design envelope.
+    '01_border_all':      {'top': (0.015, 0.035), 'bottom': (0.015, 0.04), 'left': (0.01, 0.035), 'right': (0.01, 0.035)},
+    '02_white_surround':  {'top': (0.03, 0.07), 'bottom': (0.03, 0.07), 'left': (0.02, 0.06), 'right': (0.02, 0.06)},
+    '03_interrupted_top': {'top': (0.015, 0.035), 'bottom': (0.0, 0.0), 'left': (0.0, 0.0), 'right': (0.0, 0.0)},
     '04_dark_edges':      {'top': (0.0, 0.0), 'bottom': (0.0, 0.0), 'left': (0.0, 0.0), 'right': (0.0, 0.0)},
-    '05_uneven':          {'top': (0.005, 0.03), 'bottom': (0.03, 0.07), 'left': (0.005, 0.03), 'right': (0.0, 0.02)},
+    '05_uneven':          {'top': (0.01, 0.03), 'bottom': (0.015, 0.04), 'left': (0.008, 0.03), 'right': (0.005, 0.025)},
 }
 
 def main():
