@@ -54,6 +54,7 @@ RUN apk add --no-cache \
     php83-imap \
     php83-pdo_mysql \
     php83-mbstring \
+    php83-opcache \
     php83-xml \
     php83-zip \
     php83-bcmath \
