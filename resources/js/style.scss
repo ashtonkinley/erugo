@@ -438,7 +438,7 @@ body {
   -webkit-backdrop-filter: blur(26px) saturate(1.25);
   backdrop-filter: blur(26px) saturate(1.25);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.2);
   z-index: 101;
   padding: 34px 32px;
   border-radius: 24px;
@@ -601,12 +601,14 @@ select option {
 
   --label-text-color: #fff;
 
-  /* Sticky table headers go near-opaque so scrolled rows can't show
-     through them. */
-  table thead {
-    background: rgba(24, 24, 30, 0.92);
-    -webkit-backdrop-filter: blur(18px) saturate(1.2);
-    backdrop-filter: blur(18px) saturate(1.2);
+  /* Sticky headers: the background must be fully opaque and sit on the
+     th cells themselves — with border-collapse the thead-level background
+     lets scrolled row text bleed through. */
+  table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #18181e;
   }
 
   /* Very light photos wash out white text: a gentle lift that keeps the
