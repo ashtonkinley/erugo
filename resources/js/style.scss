@@ -690,26 +690,11 @@ select option {
   }
 
   /* Mobile: the page scrolls like a normal webpage. Only the tab pills
-     stay pinned — everything else (header, filters, shares) scrolls.
-     Full-screen, edge-to-edge like a real page (not a floating card). */
+     stay pinned — everything else (header, filters, shares) scrolls. */
   @media (max-width: 900px) {
     .settings-container {
-      /* Full-screen on mobile: no floating card, no rounded corners */
-      width: 100vw !important;
-      height: 100dvh !important;
-      max-height: 100dvh !important;
-      left: 0 !important;
-      bottom: 0 !important;
-      transform: none !important;
-      border-radius: 0 !important;
-      border-left: none !important;
-      border-right: none !important;
-      /* Container clips but doesn't scroll itself */
+      /* Container clips to rounded corners but doesn't scroll itself */
       overflow: hidden;
-    }
-
-    .settings-overlay.active .settings-container {
-      transform: none !important;
     }
 
     .settings-tabs-wrapper {
@@ -720,8 +705,6 @@ select option {
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
       display: block;
-      /* Smooth momentum scrolling */
-      scroll-behavior: smooth;
     }
 
     .settings-tabs-container {
