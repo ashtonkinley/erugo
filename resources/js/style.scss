@@ -689,42 +689,41 @@ select option {
     display: none;
   }
 
-  /* Mobile: only the shares list scrolls — header and tabs stay fixed. */
+  /* Mobile: the page scrolls like a normal webpage. Only the tab pills
+     stay pinned — everything else (header, filters, shares) scrolls. */
   @media (max-width: 900px) {
     .settings-container {
-      /* Container itself does not scroll */
+      /* Container clips to rounded corners but doesn't scroll itself */
       overflow: hidden;
     }
 
     .settings-tabs-wrapper {
-      position: static;
-      /* Take up remaining space so the content area can scroll within it */
+      /* THIS is the scroll container on mobile */
       flex: 1;
       min-height: 0;
-      display: flex;
-      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      display: block;
     }
 
     .settings-tabs-container {
-      /* Tabs stay pinned at top, outside the scroll area */
-      flex-shrink: 0;
+      /* Pills stay pinned to the top while the page scrolls */
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(24, 24, 30, 0.96);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
     }
 
     .settings-tab-content {
-      /* Content area fills remaining space and scrolls */
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .tab-content-body {
-      /* This is the ONLY scrollable area on mobile */
-      overflow-y: auto;
-      flex: 1;
-      min-height: 0;
-      -webkit-overflow-scrolling: touch;
+      /* No nested scroll — flows with the page */
+      overflow: visible;
     }
 
     /* Small X button, top-right — not a full-width bar */
