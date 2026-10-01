@@ -2,6 +2,18 @@
 
 > **Translation policy of this fork:** Only **English and German** are actively maintained and offered in the UI. The language selector has been reduced to these two languages, and the other locale files (`fr`, `it`, `nl`, `pt`, `pt-BR`) still exist but are no longer updated when UI strings change.
 
+## 2026-09-30 — Security dependency upgrades (baseline audit must-fix)
+- twig/twig 3.20.0 → 3.30.0 — 14 advisories incl. critical RCE/sandbox escapes; admin email templates compile raw Twig server-side
+- laravel/framework 11.42.1 → 11.57.0 — file-validation bypass (GHSA-78fx-h6xr-vch4), directly in the upload threat model
+- guzzlehttp/guzzle 7.9.2 → 7.15.5, guzzlehttp/psr7 2.7.0 → 2.13.1
+- league/commonmark 2.6.1 → 2.10.3 (XSS/parsing DoS), league/flysystem 3.29.1 → 3.36.0 (path-normalizer bypass), phpseclib/phpseclib 3.0.43 → 3.0.57
+- symfony/* 7.2.3 → 7.4.x, symfony/polyfill-intl-idn 1.31.0 → 1.43.0
+- dompurify 3.4.13 → 3.4.16, browserslist 4.28.1 → 4.29.3, nanoid 3.3.17 → 3.3.19, baseline-browser-mapping 2.10.43 → 2.11.26
+- Dockerfile prod stage now runs `composer install --no-dev` — dev dependencies (phpunit, psysh) are no longer baked into the image
+- firebase/php-jwt deliberately left on the 6.x line (6.11.0 → 6.11.1): 7.x is blocked by laravel/socialite requiring `^6.4`; revisit when socialite permits 7.x
+- laravel/framework stays on 11.x (now 11.57.0): the CRLF-in-email-rule advisory (GHSA-5vg9-5847-vvmq, CVSS 8.2) is fixed only in 12.x — a major-version bump needs its own plan
+- Verified: `php artisan test` green, `npm run build` clean; image rebuilt and pushed to `ghcr.io/ashtonkinley/erugo`
+
 ## 2026-09-30 — Montréal Analogue stewardship begins
 - Fork synced to `mrpetabyte/main` at `deec8b9` (2026-09-24); this repo is now maintained by Montréal Analogue as its own line.
 - Added `.github/workflows/build.yml`: on pushes to `main` and on `v*` tags, builds `docker/alpine/Dockerfile` and pushes to `ghcr.io/ashtonkinley/erugo` (`latest` + commit SHA; git tag when present). Actions pinned to SHAs, `GITHUB_TOKEN` with `packages: write`.
