@@ -131,10 +131,32 @@ table {
     display: none;
   }
   .my-shares-tab td:nth-child(3) .download_limit_manager {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     padding: 6px 14px;
+  }
+  .my-shares-tab td:nth-child(3) .limit-label,
+  .my-shares-tab td:nth-child(3) .count_label {
+    display: none;
+  }
+  .my-shares-tab td:nth-child(3) .download_count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.9rem;
+  }
+  .my-shares-tab td:nth-child(3) .download_limit_input {
+    width: 45px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 0.85rem;
+    color: inherit;
   }
   // Dates (now 5th cell after size-cell was added)
   .my-shares-tab tr > td:nth-child(5) {
