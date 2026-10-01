@@ -42,8 +42,8 @@ function getSettings()
     $userCount = User::count();
     $indexedSettings['setup_needed'] = $userCount > 0 ? false : true;
 
-    //grab the app url from env
-    $appURL = env('APP_URL');
+    //grab the app url from config (env() returns null once config is cached)
+    $appURL = config('app.url');
     $indexedSettings['api_url'] = $appURL;
 
     // Add app version
@@ -56,8 +56,8 @@ function getSettings()
 Route::get('/', function () {
     $indexedSettings = getSettings();
 
-    //grab the app url from env
-    $appURL = env('APP_URL');
+    //grab the app url from config (env() returns null once config is cached)
+    $appURL = config('app.url');
     $indexedSettings['api_url'] = $appURL;
 
     $theme = Theme::where('active', true)->first();
