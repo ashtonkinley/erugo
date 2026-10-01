@@ -598,12 +598,22 @@ html[data-theme="dark"] .guest-name-field.is-guest input {
 
 .upload-hero {
   .upload-kicker {
+    // Info chip: same light-blue pill as the "Add files" button so it stays
+    // legible over the rotating background photo. display:table shrink-wraps
+    // the pill and margin:auto centers it without affecting siblings.
+    display: table;
+    margin: 0 auto 14px;
+    background: var(--primary-button-background-color);
+    color: var(--primary-button-text-color);
+    border-radius: 999px;
+    padding: 8px 18px;
     font-size: 0.78rem;
+    font-weight: 600;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    opacity: 0.78;
-    margin: 0 0 12px;
+    opacity: 1;
     text-align: center;
+    white-space: nowrap;
   }
 
   .upload-invite-label {
@@ -721,33 +731,44 @@ html[data-theme="dark"] .guest-name-field.is-guest input {
     justify-content: center;
     gap: 10px;
     font-size: 0.85rem;
-    opacity: 0.85;
+    opacity: 1;
     margin-bottom: 4px;
     text-align: center;
     flex-wrap: wrap;
 
+    // Info chips: light-blue pills matching "Add files" for legibility over
+    // the background photo. Kept smaller than the CTA buttons.
     .max-size-label {
       margin: 0;
-      color: #fff;
+      background: var(--primary-button-background-color);
+      color: var(--primary-button-text-color);
+      border-radius: 999px;
+      padding: 6px 14px;
       font-size: 0.85rem;
+      font-weight: 500;
+      white-space: nowrap;
     }
 
     .meta-dot {
-      opacity: 0.55;
+      display: none;
     }
 
     .expiry-label {
       display: inline-flex;
       align-items: center;
+      background: var(--primary-button-background-color);
+      color: var(--primary-button-text-color);
+      border-radius: 999px;
+      padding: 6px 14px;
       font-size: 0.85rem;
-      font-weight: 400;
-      color: #fff;
+      font-weight: 500;
       cursor: pointer;
       user-select: none;
       margin: 0;
+      white-space: nowrap;
 
       &:hover {
-        color: #fff;
+        color: var(--primary-button-text-color);
         text-decoration: underline;
       }
 
