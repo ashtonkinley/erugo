@@ -618,6 +618,77 @@ select option {
     isolation: isolate;
   }
 
+  /* Mobile: transform the shares table into stacked cards. No horizontal
+     scrolling — each share becomes a full-width card that fits the screen. */
+  @media (max-width: 900px) {
+    table thead {
+      /* Hide column headers; card content is self-labeled */
+      display: none;
+    }
+    table, table tbody {
+      display: block;
+      width: 100%;
+    }
+    table tr {
+      display: block;
+      width: 100%;
+      margin-bottom: 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 16px;
+      box-sizing: border-box;
+    }
+    table td {
+      display: block;
+      width: 100% !important;
+      white-space: normal !important;
+      border: none !important;
+      padding: 8px 0 !important;
+      vertical-align: top;
+      box-sizing: border-box;
+    }
+    table td:first-child {
+      padding-top: 0 !important;
+    }
+    table td:last-child {
+      padding-bottom: 0 !important;
+    }
+    /* Separate the card sections with subtle dividers */
+    table td + td {
+      border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    /* Action buttons: full-width, stacked, with labels */
+    table td:last-child button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 12px;
+    }
+    table td:last-child button:last-child {
+      margin-bottom: 0;
+    }
+    /* Show short mobile labels, hide desktop long labels */
+    .mobile-label {
+      display: inline !important;
+    }
+    .desktop-label {
+      display: none !important;
+    }
+    /* Download button: show text on mobile (icon-only on desktop) */
+    button.icon-only {
+      width: 100%;
+    }
+  }
+
+  /* Desktop: hide mobile-specific short labels */
+  .mobile-label {
+    display: none;
+  }
+
   /* Very light photos wash out white text: a gentle lift that keeps the
      glass look. Kept off dark-text controls (white pills, active tab). */
   .settings-container {
