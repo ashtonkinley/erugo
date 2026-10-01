@@ -38,3 +38,119 @@ table {
     }
   }
 }
+
+// Desktop: My Shares as centered 2-column card grid (no horizontal scroll)
+@media (min-width: 901px) {
+  .my-shares-tab table,
+  .my-shares-tab tbody {
+    display: block;
+    width: 100%;
+  }
+  .my-shares-tab thead {
+    display: none;
+  }
+  .my-shares-tab tbody {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    background: transparent;
+  }
+  .my-shares-tab tbody tr {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 20px;
+    gap: 10px;
+    text-align: center;
+  }
+  .my-shares-tab td {
+    border: none;
+    padding: 0;
+    text-align: center;
+  }
+  .my-shares-tab td:nth-child(1) {
+    flex: 1 1 100%;
+  }
+  .my-shares-tab td:nth-child(1) .slide-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .my-shares-tab td:nth-child(1) .content {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .my-shares-tab td:nth-child(2),
+  .my-shares-tab td:nth-child(3) {
+    flex: 1 1 40%;
+  }
+  .my-shares-tab td:nth-child(2)::before,
+  .my-shares-tab td:nth-child(3)::before {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.55;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .my-shares-tab td:nth-child(2)::before {
+    content: "Files";
+  }
+  .my-shares-tab td:nth-child(3)::before {
+    content: "Downloads";
+  }
+  .my-shares-tab .files-container {
+    justify-content: center;
+  }
+  .my-shares-tab td:nth-child(4) {
+    flex: 1 1 100%;
+  }
+  .my-shares-tab td:nth-child(4)::before {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.55;
+    margin-bottom: 6px;
+    font-weight: 600;
+    content: "Dates";
+  }
+  .my-shares-tab td:nth-child(4) .date-container {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+  .my-shares-tab td:nth-child(4) .date {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 6px;
+    font-size: 0.78rem;
+    min-width: 0;
+  }
+  .my-shares-tab td:nth-child(4) .date span {
+    min-width: 0;
+    margin: 0 0 3px 0;
+    padding: 3px 6px;
+    height: auto;
+    font-size: 0.7rem;
+  }
+  .my-shares-tab td:nth-child(5) {
+    flex: 1 1 100%;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .my-shares-tab td:nth-child(1)::before,
+  .my-shares-tab td:nth-child(5)::before {
+    display: none;
+  }
+}
