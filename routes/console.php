@@ -112,7 +112,7 @@ Artisan::command('backgrounds:detect-subjects {--force}', function () {
         $done++;
     }
     $this->info("Subject detection complete: {$done} processed, {$skipped} already had focal points.");
-})->purpose('Detect subject focal points for background images (smart cropping)');
+})->purpose('Detect subject focal points and black film borders for background images (smart cropping)');
 
 Artisan::command('clear-settings-cache', function () {
     app(SettingsService::class)->clearCache();

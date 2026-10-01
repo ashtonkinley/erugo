@@ -43,8 +43,17 @@ onMounted(() => {
     }
     interval.value = setInterval(changeBackground, slideshowSpeed.value * 1000)
     getBackgroundImages().then((data) => {
-      backgroundFiles.value = data.files
-      focalPoints.value = data.focal_points || {}
+      // The slideshow renders the display variant (border-cropped copy when
+      // black film borders were detected, otherwise the original). Focal
+      // points are keyed by original filename, so remap them onto the
+      // display names the template iterates over.
+      const displayFor = (f) => (data.display_files && data.display_files[f]) || f
+      const focalByDisplay = {}
+      data.files.forEach((f) => {
+        focalByDisplay[displayFor(f)] = (data.focal_points || {})[f]
+      })
+      backgroundFiles.value = data.files.map(displayFor)
+      focalPoints.value = focalByDisplay
       //start on a random background instead of always showing the first file
       if (data.files.length > 0) {
         currentBackgroundIndex.value = Math.floor(Math.random() * data.files.length)

@@ -55,6 +55,7 @@ class BackgroundsController extends Controller
         $files = array_values($files);
 
         $focalPoints = app(SubjectDetectionService::class)->focalPointsFor($files);
+        $displayFiles = app(SubjectDetectionService::class)->displayFilesFor($files);
 
         return response()->json([
             'status' => 'success',
@@ -62,6 +63,7 @@ class BackgroundsController extends Controller
             'data' => [
                 'files' => $files,
                 'focal_points' => $focalPoints,
+                'display_files' => $displayFiles,
             ]
         ]);
     }
