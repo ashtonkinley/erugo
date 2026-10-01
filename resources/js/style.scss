@@ -697,6 +697,15 @@ select option {
       overflow: hidden;
     }
 
+    /* Entire panel opaque on mobile — no background image showing through.
+       High specificity to beat Vue scoped styles. */
+    .settings-overlay .settings-container {
+      background: #18181e;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
     /* Top "Manage My Shares" header — same opaque background as pills for a unified bar.
        High specificity to beat Vue scoped styles. */
     .settings-container .settings-header {
