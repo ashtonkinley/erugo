@@ -4,7 +4,7 @@ WORKDIR /app
 RUN apk add --no-cache git unzip \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 COPY . .
-RUN composer install --no-interaction --optimize-autoloader
+RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Build Stage for Node.js dependencies and assets
 FROM node:20-alpine AS node
