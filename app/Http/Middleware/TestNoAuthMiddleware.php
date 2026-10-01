@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Models\User;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * TEST ENVIRONMENT ONLY: Auto-authenticate as the first admin user.
@@ -22,13 +21,6 @@ class TestNoAuthMiddleware
             $admin = User::where('is_admin', true)->first() ?? User::first();
             if ($admin) {
                 auth()->setUser($admin);
-                // Also set the JWT token so API calls work
-                try {
-                    $token = JWTAuth::fromUser($admin);
-                    $request->headers->set('Authorization', 'Bearer ' . $token);
-                } catch (\Exception $e) {
-                    // JWT not available, rely on session auth
-                }
             }
         }
 
