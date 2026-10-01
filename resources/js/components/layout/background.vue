@@ -21,10 +21,16 @@ const isVideo = (filename) => {
 // Slideshow preloading: the swap only happens once the next image is fully
 // decoded — never a black frame. A read-ahead preloads exactly one image
 // (the next background) during the current cycle. Deliberately no bulk
-// warming: firing off all 70 backgrounds at once crash-looped Mobile Safari
-// (first via forced decodes in #49, then via the fetch burst in #50). If the
-// target isn't ready when the timer fires, the current image simply stays.
-let nextIndex = null
+// loading of any kind: the template used to bind a background-image URL on
+// every one of the ~76 slide divs, so Mobile Safari fetched and decoded all
+// of them on cold load (~330MB of bitmaps) and jetsam-killed the tab —
+// removing the JS warming in #53 wasn't enough on its own. Only the active
+// slide, the slide fading out, and the preloading next slide ever carry an
+// image URL; every other div renders empty. If the target isn't ready when
+// the timer fires, the current image simply stays.
+const preloadIndex = ref(null)
+const fadingIndex = ref(null)
+let fadeTimeout = null
 let nextReady = false
 let nextImg = null
 
@@ -40,7 +46,7 @@ const pickRandomIndex = (exclude) => {
 }
 
 const preloadNext = (index) => {
-  nextIndex = index
+  preloadIndex.value = index
   nextReady = false
   const file = backgroundFiles.value[index]
   if (isVideo(file)) {
@@ -50,8 +56,8 @@ const preloadNext = (index) => {
   }
   // Keep a reference so the image isn't GC'd before it finishes loading.
   nextImg = new Image()
-  nextImg.onload = () => { if (nextIndex === index) nextReady = true }
-  nextImg.onerror = () => { if (nextIndex === index) nextReady = false }
+  nextImg.onload = () => { if (preloadIndex.value === index) nextReady = true }
+  nextImg.onerror = () => { if (preloadIndex.value === index) nextReady = false }
   nextImg.src = `/api/backgrounds/${file}/optimized`
 }
 
@@ -63,6 +69,18 @@ const prepareNext = () => {
 
 const isActive = (index) => {
   return index === currentBackgroundIndex.value
+}
+
+// Only these slides get an image URL: the visible one, the one fading out
+// (it must stay painted for the 0.5s crossfade), and the one being
+// preloaded. All others render as empty divs so the browser never fetches
+// or decodes their images.
+const shouldLoadImage = (index) => {
+  return (
+    index === currentBackgroundIndex.value ||
+    index === fadingIndex.value ||
+    index === preloadIndex.value
+  )
 }
 
 // Smart-crop: position the cover-crop on the detected subject instead of
@@ -114,8 +132,14 @@ const changeBackground = () => {
   }
   // Only swap to the preloaded background once it's decoded. If it isn't
   // ready yet, keep the current image instead of flashing black.
-  if (nextReady && nextIndex != null && nextIndex !== currentBackgroundIndex.value) {
-    currentBackgroundIndex.value = nextIndex
+  if (nextReady && preloadIndex.value != null && preloadIndex.value !== currentBackgroundIndex.value) {
+    // Keep the outgoing slide's image painted while it fades out, then
+    // release it so its bitmap is freed.
+    if (fadeTimeout) clearTimeout(fadeTimeout)
+    fadingIndex.value = currentBackgroundIndex.value
+    currentBackgroundIndex.value = preloadIndex.value
+    preloadIndex.value = null
+    fadeTimeout = setTimeout(() => { fadingIndex.value = null }, 600)
   }
   // Start loading the background after next.
   prepareNext()
@@ -151,7 +175,7 @@ const changeBackground = () => {
         v-else-if="!isVideo(file)"
         class="backgrounds-item"
         :class="{ active: isActive(index) }"
-        :style="{ backgroundImage: `url(/api/backgrounds/${file}/optimized)`, backgroundPosition: backgroundPosition(file) }"
+        :style="shouldLoadImage(index) ? { backgroundImage: `url(/api/backgrounds/${file}/optimized)`, backgroundPosition: backgroundPosition(file) } : {}"
       ></div>
     </template>
   </div>
