@@ -1001,7 +1001,10 @@
   "share": {
     "button": {
       "expireNow": "Expire Now",
-      "extend": "Extend"
+      "expire": "Expire",
+      "extend": "Extend",
+      "download": "Download",
+      "downloadAll": "Download all files"
     },
     "contains": {
       "count": "{value, plural, one {# file} other {{value} files}}"

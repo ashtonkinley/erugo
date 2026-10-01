@@ -237,7 +237,8 @@ defineExpose({
               :disabled="!enableExpireShareButton(share)"
             >
               <CalendarX2 />
-              {{ $t('share.button.expireNow') }}
+              <span class="desktop-label">{{ $t('share.button.expireNow') }}</span>
+              <span class="mobile-label">{{ $t('share.button.expire') }}</span>
             </button>
             <button
               @click="handleExtendShareClick(share)"
@@ -250,10 +251,11 @@ defineExpose({
             <button
               @click="downloadShare(share)"
               class="secondary icon-only"
-              title="Download all files"
+              :title="$t('share.button.downloadAll')"
               :disabled="!enableDownloadButton(share)"
             >
-              <HardDriveDownload style="margin-right: 0" />
+              <HardDriveDownload />
+              <span class="mobile-label">{{ $t('share.button.download') }}</span>
             </button>
           </td>
         </tr>
