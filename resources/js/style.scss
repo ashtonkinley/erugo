@@ -268,16 +268,12 @@ body {
     background-repeat: no-repeat;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
-    /* GPU-composite the fade so it never blocks scrolling */
+    /* GPU-composite the crossfade on all devices so the 0.5s opacity
+       animation never blocks the main thread (and touch scrolling).
+       translateZ(0) promotes each layer; the browser then animates
+       opacity entirely on the compositor. */
     will-change: opacity;
     transform: translateZ(0);
-    /* Mobile: the settings panel is fully opaque, so the crossfade is
-       invisible work that can jank touch scrolling — swap instantly. */
-    @media (max-width: 900px) {
-      transition: none;
-      will-change: auto;
-      transform: none;
-    }
     .backgrounds-item-credit {
       position: fixed;
       top: 20px;
