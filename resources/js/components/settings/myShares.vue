@@ -123,7 +123,7 @@ defineExpose({
 </script>
 
 <template>
-  <div>
+  <div class="my-shares-tab">
     <HelpTip id="download-limit-help-tip" :header="$t('settings.help.downloadLimit.title')">
       <p>
         {{ $t('settings.help.downloadLimit.description') }}
