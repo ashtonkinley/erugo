@@ -6,6 +6,10 @@ name: dep-upgrade
 
 on:
   workflow_dispatch:
+  # Fallback trigger: the REST workflow-dispatch endpoint does not always see
+  # branch-only workflow files promptly, so a push to this branch also starts it.
+  push:
+    branches: [security/dep-upgrades-2026-09-30]
 
 permissions:
   contents: write
@@ -89,7 +93,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "chore(deps): security upgrades 2026-09-30
+            git commit -m "chore(deps): security upgrades 2026-09-30 [skip ci]
 
           Twig, Laravel, Guzzle, league/commonmark, phpseclib, symfony/*,
           firebase/php-jwt ($JWT_RESULT), league/flysystem, dompurify +
