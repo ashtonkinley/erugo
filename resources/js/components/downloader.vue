@@ -28,6 +28,16 @@ const props = defineProps({
 
 onMounted(() => {
   fetchShare()
+  // Full-bleed on iOS: with viewport-fit=cover the photo extends under the
+  // status bar and the liquid-glass toolbar. Tint both dark so they blend
+  // with the photo instead of the default light chrome.
+  let themeColor = document.querySelector('meta[name="theme-color"]')
+  if (!themeColor) {
+    themeColor = document.createElement('meta')
+    themeColor.setAttribute('name', 'theme-color')
+    document.head.appendChild(themeColor)
+  }
+  themeColor.setAttribute('content', '#000000')
   setTimeout(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const errorMessage = urlParams.get('error')
