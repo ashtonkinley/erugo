@@ -2,6 +2,15 @@
 
 > **Translation policy of this fork:** Only **English and German** are actively maintained and offered in the UI. The language selector has been reduced to these two languages, and the other locale files (`fr`, `it`, `nl`, `pt`, `pt-BR`) still exist but are no longer updated when UI strings change.
 
+## 2026-09-30 — Montréal Analogue stewardship begins
+- Fork synced to `mrpetabyte/main` at `deec8b9` (2026-09-24); this repo is now maintained by Montréal Analogue as its own line.
+- Added `.github/workflows/build.yml`: on pushes to `main` and on `v*` tags, builds `docker/alpine/Dockerfile` and pushes to `ghcr.io/ashtonkinley/erugo` (`latest` + commit SHA; git tag when present). Actions pinned to SHAs, `GITHUB_TOKEN` with `packages: write`.
+- Branch protection on `main`: force pushes and deletions blocked; no PR-review requirement (solo maintainer).
+- Enabled Dependabot alerts + Dependabot security updates; secret scanning and push protection were already on.
+- Started weekly maintenance: upstream review (ErugoOSS + mrpetabyte), `composer`/`npm` audits, dependency patches, image rebuild + smoke test, changelog.
+- Baseline security audit recorded (2026-09-30): upstream RCE fix confirmed in history; dependency advisories triaged — Twig, Laravel, Guzzle, league/commonmark, phpseclib, symfony/* upgrades queued for the first patch cycle.
+
+
 ## Reverse Shares
 - Reverse Shares: Add option for link-only invite
 - Reverse Shares: Remove option for guest email invites (only existing users can be invited via email)
