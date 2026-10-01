@@ -2,6 +2,13 @@
 
 > **Translation policy of this fork:** Only **English and German** are actively maintained and offered in the UI. The language selector has been reduced to these two languages, and the other locale files (`fr`, `it`, `nl`, `pt`, `pt-BR`) still exist but are no longer updated when UI strings change.
 
+## 2026-10-01 — Upload performance: OPcache + config cache
+- Folder uploads of many small files were CPU-bound by PHP recompiling the framework on every tusd hook request (~82ms pure bootstrap per hook, 4 hooks per file). The image didn't ship `php83-opcache`, and the entrypoint cleared the config cache on boot without rebuilding it.
+- Dockerfile now installs `php83-opcache`; `php.ini` enables OPcache (256MB, 20k files, 60s revalidation).
+- `start-container` now runs `php artisan config:cache` on boot instead of only `config:clear` (route cache still cleared — routes use closures and can't be cached).
+- Replaced direct `env('APP_URL')` with `config('app.url')` in `SharesController` and `routes/web.php` (`env()` returns null once config is cached).
+- Measured on Tower test instance: hook request time 82ms → ~8ms (~10x less per-request overhead).
+
 ## 2026-09-30 — Security dependency upgrades (baseline audit must-fix)
 - twig/twig 3.20.0 → 3.30.0 — 14 advisories incl. critical RCE/sandbox escapes; admin email templates compile raw Twig server-side
 - laravel/framework 11.42.1 → 11.57.0 — file-validation bypass (GHSA-78fx-h6xr-vch4), directly in the upload threat model
