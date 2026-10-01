@@ -121,8 +121,11 @@ const setShowDeletedShares = (value) => {
 // Client-side only: the API already returns expired shares; this just
 // controls whether expired-but-not-deleted ones are visible.
 const visibleShares = computed(() => {
-  if (showExpiredShares.value) return shares.value
-  return shares.value.filter((share) => !(share.expired && !share.deleted))
+  // The toggle is a filter: off shows everything as normal (expired shares
+  // remain visible); on narrows the list to only expired-but-not-deleted
+  // shares.
+  if (showExpiredShares.value) return shares.value.filter((share) => share.expired && !share.deleted)
+  return shares.value
 })
 
 const setShowExpiredShares = (value) => {
