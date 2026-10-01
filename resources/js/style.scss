@@ -607,10 +607,15 @@ select option {
      th cells themselves — with border-collapse the thead-level background
      lets scrolled row text bleed through. */
   table thead th {
+    position: -webkit-sticky;
     position: sticky;
     top: 0;
     z-index: 10;
     background: #18181e;
+    /* iOS Safari: sticky th needs an explicit stacking context, otherwise
+       scrolled row content (e.g. the "/" in "0 / ∞") can paint above the
+       header. isolation:isolate does this without affecting layout. */
+    isolation: isolate;
   }
 
   /* Very light photos wash out white text: a gentle lift that keeps the
