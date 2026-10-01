@@ -18,6 +18,46 @@ const isVideo = (filename) => {
   return VIDEO_EXTENSIONS.includes(extension)
 }
 
+// Read-ahead: the next background is preloaded during the current cycle so
+// the swap only happens once the image is decoded. If it isn't ready when
+// the timer fires, the current image simply stays — never a black frame.
+let nextIndex = null
+let nextReady = false
+
+const pickRandomIndex = (exclude) => {
+  const n = backgroundFiles.value.length
+  if (n === 0) return null
+  if (n === 1) return 0
+  let idx = Math.floor(Math.random() * n)
+  if (idx === exclude) idx = (idx + 1) % n
+  return idx
+}
+
+const preloadNext = (index) => {
+  nextIndex = index
+  nextReady = false
+  const file = backgroundFiles.value[index]
+  if (isVideo(file)) {
+    // Videos render on demand when active; keep existing behavior.
+    nextReady = true
+    return
+  }
+  const img = new Image()
+  img.onload = () => {
+    if (nextIndex === index) nextReady = true
+  }
+  img.onerror = () => {
+    if (nextIndex === index) nextReady = false
+  }
+  img.src = `/api/backgrounds/${file}/optimized`
+}
+
+const prepareNext = () => {
+  const idx = pickRandomIndex(currentBackgroundIndex.value)
+  if (idx == null) return
+  preloadNext(idx)
+}
+
 const isActive = (index) => {
   return index === currentBackgroundIndex.value
 }
@@ -57,6 +97,9 @@ onMounted(() => {
       //start on a random background instead of always showing the first file
       if (data.files.length > 0) {
         currentBackgroundIndex.value = Math.floor(Math.random() * data.files.length)
+        // Begin preloading the next background right away so the first
+        // transition is already covered.
+        prepareNext()
       }
     })
   }
@@ -66,8 +109,13 @@ const changeBackground = () => {
   if (!useMyBackgrounds.value || backgroundFiles.value.length === 0) {
     return
   }
-  //randomly select a background image
-  currentBackgroundIndex.value = Math.floor(Math.random() * backgroundFiles.value.length)
+  // Only swap to the preloaded background once it's decoded. If it isn't
+  // ready yet, keep the current image instead of flashing black.
+  if (nextReady && nextIndex != null && nextIndex !== currentBackgroundIndex.value) {
+    currentBackgroundIndex.value = nextIndex
+  }
+  // Start loading the background after next.
+  prepareNext()
 }
 </script>
 <template>
