@@ -43,27 +43,26 @@ jobs:
       - name: Install locked PHP deps (baseline)
         run: composer install --no-interaction --prefer-dist
 
-      - name: Try firebase/php-jwt 7.x (fall back to 6.x line)
+      - name: Pin firebase/php-jwt to 6.x line (7.x blocked by laravel/socialite)
         id: jwt
         run: |
-          if composer require firebase/php-jwt:"^7.0" --no-update --no-interaction 2>jwt7.log; then
-            echo "jwt_result=7.x constraint applied" >> "$GITHUB_OUTPUT"
-          else
-            echo "firebase/php-jwt 7.x blocked by dependency constraints; staying on 6.x line:"
-            tail -5 jwt7.log || true
-            git checkout -- composer.json
-            echo "jwt_result=6.x (7.x blocked by dependency constraints)" >> "$GITHUB_OUTPUT"
-          fi
-          rm -f jwt7.log
+          composer require firebase/php-jwt:"^6.11" --no-update --no-interaction
+          echo "jwt_result=6.x (7.x blocked: laravel/socialite requires firebase/php-jwt ^6.4)" >> "$GITHUB_OUTPUT"
 
       - name: Composer security upgrades
         run: |
           SYMFONY_PKGS=$(php -r '$l=json_decode(file_get_contents("composer.lock"),true);$p=[];foreach(array_merge($l["packages"],$l["packages-dev"]) as $x){if(str_starts_with($x["name"],"symfony/"))$p[]=$x["name"];}echo implode(" ",array_unique($p));')
           echo "Symfony packages: $SYMFONY_PKGS"
+          # Every laravel/framework 11.x carries at least one advisory fixed only
+          # in 12.x, so composer's advisory blocking would refuse ALL 11.x
+          # candidates. We deliberately target the newest patched 11.x, so lift
+          # the block for this run only (unset afterwards; not committed).
+          composer config policy.advisories.block false --no-interaction
           composer update --no-interaction --prefer-dist --with-all-dependencies \
             twig/twig laravel/framework guzzlehttp/guzzle guzzlehttp/psr7 \
             league/commonmark league/flysystem phpseclib/phpseclib \
             firebase/php-jwt $SYMFONY_PKGS
+          composer config --unset policy.advisories.block --no-interaction
 
       - name: NPM security upgrades
         run: |
