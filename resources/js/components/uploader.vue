@@ -938,6 +938,11 @@ const filesByDirectory = computed(() => {
 </script>
 
 <template>
+  <!-- Editorial upload page (Option A): full-bleed photo, gradient scrims,
+       bottom-centred upload panel. The overlays below stay outside the hero. -->
+  <div class="upload-hero">
+    <div class="upload-scrim"></div>
+    <div class="upload-hero-content">
   <div class="upload-form" :class="{ 'is-uploading': currentlyUploading }">
     <div
       class="upload-invite-label"
@@ -945,6 +950,7 @@ const filesByDirectory = computed(() => {
     >
       {{ store.getReverseShareLabel() }}
     </div>
+    <p class="upload-kicker" v-if="!store.getReverseShareLabel()">{{ $t('uploader.new_share', 'New share') }}</p>
     <div class="buttons">
       <button class="upload-files block text-large" @click="showFilePicker">
         <FilePlus />
@@ -955,7 +961,26 @@ const filesByDirectory = computed(() => {
         {{ $t('Add Folders') }}
       </button>
     </div>
-    <div class="max-size-label">{{ niceFileSize(totalSize) }} / {{ niceFileSize(maxShareSize) }}</div>
+    <div class="upload-meta">
+      <span class="max-size-label">{{ niceFileSize(totalSize) }} / {{ niceFileSize(maxShareSize) }}</span>
+      <span class="meta-dot">&middot;</span>
+      <span class="expiry-label" @click="toggleExpirySettings">
+        <Clock9 />
+        {{ $t('uploader.expiry_label', { text: t('uploader.expiry_unit_plural.' + expiryUnit, { value: expiryValue }) }) }}
+      </span>
+    </div>
+    <div class="expiry-settings" :class="{ visible: showExpirySettings }">
+      <input type="number" v-model="expiryValue" />
+      <span class="maxValueOverlay" v-if="maxExpiryTimeInSelectedUnit != null">
+        {{ t('uploader.expiry_max_value', { value: RoundedMaxExpiryTimeInSelectedUnit }) }}
+      </span>
+      <select v-model="expiryUnit">
+        <option value="days">{{ $t('uploader.expiry_unit.days') }}</option>
+        <option value="weeks" v-if="canExpireInWeeks">{{ $t('uploader.expiry_unit.weeks') }}</option>
+        <option value="months" v-if="canExpireInMonths">{{ $t('uploader.expiry_unit.months') }}</option>
+        <option value="years" v-if="canExpireInYears">{{ $t('uploader.expiry_unit.years') }}</option>
+      </select>
+    </div>
 
 
       <div class="progress-bar-container" :class="{ visible: currentlyUploading }">
@@ -999,24 +1024,6 @@ const filesByDirectory = computed(() => {
         </div>
       </div>
 
-  </div>
-  <div class="expiry-settings-container">
-    <span class="expiry-label" @click="toggleExpirySettings">
-      <Clock9 />
-      {{ $t('uploader.expiry_label', { text: t('uploader.expiry_unit_plural.' + expiryUnit, { value: expiryValue }) }) }}
-    </span>
-    <div class="expiry-settings" :class="{ visible: showExpirySettings }">
-      <input type="number" v-model="expiryValue" />
-      <span class="maxValueOverlay" v-if="maxExpiryTimeInSelectedUnit != null">
-        {{ t('uploader.expiry_max_value', { value: RoundedMaxExpiryTimeInSelectedUnit }) }}
-      </span>
-      <select v-model="expiryUnit">
-        <option value="days">{{ $t('uploader.expiry_unit.days') }}</option>
-        <option value="weeks" v-if="canExpireInWeeks">{{ $t('uploader.expiry_unit.weeks') }}</option>
-        <option value="months" v-if="canExpireInMonths">{{ $t('uploader.expiry_unit.months') }}</option>
-        <option value="years" v-if="canExpireInYears">{{ $t('uploader.expiry_unit.years') }}</option>
-      </select>
-    </div>
   </div>
   <div class="upload-basket-details pt-2">
     <div class="recipients" v-if="!store.isGuest()">
@@ -1105,6 +1112,7 @@ const filesByDirectory = computed(() => {
       <div class="upload-basket-empty" v-else>
         <div class="upload-basket-empty-text">
           {{ $t('No files added yet') }}
+          <span class="drop-hint">{{ $t('uploader.drop_hint', 'or drag & drop files anywhere on the photo') }}</span>
         </div>
       </div>
     </div>
@@ -1143,6 +1151,8 @@ const filesByDirectory = computed(() => {
       </div>
     </div>
   </div>
+    </div><!-- /.upload-hero-content -->
+  </div><!-- /.upload-hero -->
 
   <input
     type="file"
