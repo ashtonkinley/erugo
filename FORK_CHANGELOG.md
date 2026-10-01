@@ -2,6 +2,10 @@
 
 > **Translation policy of this fork:** Only **English and German** are actively maintained and offered in the UI. The language selector has been reduced to these two languages, and the other locale files (`fr`, `it`, `nl`, `pt`, `pt-BR`) still exist but are no longer updated when UI strings change.
 
+## 2026-10-01 — Share zips skip re-compressing JPEGs
+- `CreateShareZip` shelled out to `zip -r` with default compression. Share zips of JPEG scans (already compressed) burned ~72s of CPU for ~0% size savings.
+- Now passes `zip -n` with already-compressed suffixes (jpg/jpeg/png/webp/heic/tif/tiff, video, audio, archives, pdf): those are stored as-is, everything else still gets normal compression.
+
 ## 2026-10-01 — Upload performance: OPcache + config cache
 - Folder uploads of many small files were CPU-bound by PHP recompiling the framework on every tusd hook request (~82ms pure bootstrap per hook, 4 hooks per file). The image didn't ship `php83-opcache`, and the entrypoint cleared the config cache on boot without rebuilding it.
 - Dockerfile now installs `php83-opcache`; `php.ini` enables OPcache (256MB, 20k files, 60s revalidation).

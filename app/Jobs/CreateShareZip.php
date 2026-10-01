@@ -68,9 +68,17 @@ class CreateShareZip implements ShouldQueue
       mkdir($zipDir, 0755, true);
     }
 
-    // Build the zip command to zip the entire directory
+    // Build the zip command to zip the entire directory.
+    // Files that are already compressed (JPEG scans, PNGs, videos, audio,
+    // archives, PDFs) gain ~nothing from deflate, so store them as-is instead
+    // of burning CPU trying to compress them. Everything else still gets
+    // normal compression.
+    $storeOnlySuffixes = '.jpg:.jpeg:.png:.gif:.webp:.heic:.heif:.tif:.tiff'
+      . ':.mp4:.mov:.m4v:.avi:.mkv:.webm:.mp3:.aac:.m4a:.ogg:.opus:.flac'
+      . ':.zip:.gz:.bz2:.xz:.7z:.rar:.pdf';
     $zipCommand = sprintf(
-      'zip -r %s %s',
+      'zip -r -n %s %s %s',
+      escapeshellarg($storeOnlySuffixes),
       escapeshellarg($zipPath),
       escapeshellarg('.')  // '.' represents current directory after we chdir
     );
