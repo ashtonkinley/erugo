@@ -1,0 +1,103 @@
+name: dep-upgrade
+
+# TEMPORARY one-shot workflow for the 2026-09-30 security dependency upgrade
+# (baseline audit: baseline-audit-2026-09-30.md). Deleted from main after the
+# upgrade PR merges. Manual dispatch only — do not run on a schedule.
+
+on:
+  workflow_dispatch:
+  # Fallback trigger: the REST workflow-dispatch endpoint does not always see
+  # branch-only workflow files promptly, so a push to this branch also starts it.
+  push:
+    branches: [security/dep-upgrades-2026-09-30]
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: security/dep-upgrades-2026-09-30
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, tokenizer, bcmath, curl, zip, intl, gd, sqlite3, pdo_sqlite, fileinfo, dom
+          coverage: none
+
+      - name: Setup Node 20
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Prepare Laravel env
+        run: |
+          [ -f .env ] || cp .env.example .env
+          php artisan key:generate --force 2>/dev/null || true
+
+      - name: Install locked PHP deps (baseline)
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Try firebase/php-jwt 7.x (fall back to 6.x line)
+        id: jwt
+        run: |
+          if composer require firebase/php-jwt:"^7.0" --no-update --no-interaction 2>jwt7.log; then
+            echo "jwt_result=7.x constraint applied" >> "$GITHUB_OUTPUT"
+          else
+            echo "firebase/php-jwt 7.x blocked by dependency constraints; staying on 6.x line:"
+            tail -5 jwt7.log || true
+            git checkout -- composer.json
+            echo "jwt_result=6.x (7.x blocked by dependency constraints)" >> "$GITHUB_OUTPUT"
+          fi
+          rm -f jwt7.log
+
+      - name: Composer security upgrades
+        run: |
+          SYMFONY_PKGS=$(php -r '$l=json_decode(file_get_contents("composer.lock"),true);$p=[];foreach(array_merge($l["packages"],$l["packages-dev"]) as $x){if(str_starts_with($x["name"],"symfony/"))$p[]=$x["name"];}echo implode(" ",array_unique($p));')
+          echo "Symfony packages: $SYMFONY_PKGS"
+          composer update --no-interaction --prefer-dist --with-all-dependencies \
+            twig/twig laravel/framework guzzlehttp/guzzle guzzlehttp/psr7 \
+            league/commonmark league/flysystem phpseclib/phpseclib \
+            firebase/php-jwt $SYMFONY_PKGS
+
+      - name: NPM security upgrades
+        run: |
+          npm ci --no-audit --no-fund
+          npm update dompurify browserslist nanoid baseline-browser-mapping --no-audit --no-fund
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Apply Dockerfile --no-dev for prod stage
+        run: |
+          if ! grep -q -- '--no-dev' docker/alpine/Dockerfile; then
+            sed -i 's|^RUN composer install --no-interaction --optimize-autoloader$|RUN composer install --no-interaction --optimize-autoloader --no-dev|' docker/alpine/Dockerfile
+          fi
+          grep -n 'composer install' docker/alpine/Dockerfile
+
+      - name: Run PHP test suite
+        run: php artisan test
+
+      - name: Commit upgrades
+        env:
+          JWT_RESULT: ${{ steps.jwt.outputs.jwt_result }}
+        run: |
+          git config user.name "muse-dep-upgrade"
+          git config user.email "muse-dep-upgrade@users.noreply.github.com"
+          git add composer.json composer.lock package.json package-lock.json docker/alpine/Dockerfile
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(deps): security upgrades 2026-09-30 [skip ci]
+
+          Twig, Laravel, Guzzle, league/commonmark, phpseclib, symfony/*,
+          firebase/php-jwt ($JWT_RESULT), league/flysystem, dompurify +
+          npm build tooling. Dockerfile prod stage now uses --no-dev.
+          Baseline audit: baseline-audit-2026-09-30."
+            git push origin HEAD:security/dep-upgrades-2026-09-30
+          fi
