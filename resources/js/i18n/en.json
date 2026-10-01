@@ -783,6 +783,8 @@
       "chunked_uploads_disabled_but_default": "You have set the default upload mode to chunked, but chunked uploads are disabled!",
       "clean_files_after": "Clean Files After",
       "clean_files_after_description": "How long after a share expires before files are deleted from the system.",
+      "auto_clean_expired_shares": "Automatically delete expired shares",
+      "auto_clean_expired_shares_description": "When enabled, expired shares are deleted automatically once a week, after the grace period above has passed. When disabled, expired shares are kept until deleted manually.",
       "days": "Days",
       "default_expiry_time": "Default Expiry Time",
       "default_language": "Default Language",

@@ -34,6 +34,13 @@ class sendDeletionWarningEmails implements ShouldQueue
       return;
     }
 
+    // No deletion warnings when automatic cleanup itself is disabled.
+    $autoClean = $settingsService->get('auto_clean_expired_shares') ?? true;
+
+    if (!$autoClean) {
+      return;
+    }
+
     $deletion_warning_days = $settingsService->get('deletion_warning_days') ?? 7;
     $clean_files_after_days = $settingsService->get('clean_files_after_days') ?? 30;
 
