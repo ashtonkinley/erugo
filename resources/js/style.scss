@@ -697,6 +697,12 @@ select option {
       overflow: hidden;
     }
 
+    /* Top "Manage My Shares" header — same opaque background as pills for a unified bar.
+       High specificity to beat Vue scoped styles. */
+    .settings-container .settings-header {
+      background: #18181e;
+    }
+
     .settings-tabs-wrapper {
       /* THIS is the scroll container on mobile — one fluid scroll */
       flex: 1;
@@ -707,23 +713,35 @@ select option {
       display: block;
     }
 
-    .settings-tabs-container {
-      /* Pills stay pinned to the top while the page scrolls */
+    .settings-tabs-wrapper .settings-tabs-container {
+      /* Pills stay pinned to the top while the page scrolls.
+         Fully opaque so scrolled content disappears behind it. */
       position: sticky;
       top: 0;
       z-index: 30;
-      background: rgba(24, 24, 30, 0.96);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
+      background: #18181e;
     }
 
-    .settings-tab-content {
+    /* Kill the absolute-positioning trap — content flows naturally */
+    .settings-tabs-wrapper .settings-tabs-content-container {
       overflow: visible;
+      position: static;
+      height: auto;
     }
 
-    .tab-content-body {
-      /* No nested scroll — flows with the page */
+    .settings-tabs-wrapper .settings-tabs-content-container .settings-tab-content {
+      position: static;
+      height: auto;
       overflow: visible;
+      display: block;
+    }
+
+    /* Kill the nested scroller — high specificity to beat settings.vue */
+    .settings-tabs-wrapper .settings-tabs-content-container .settings-tab-content .tab-content-body {
+      overflow: visible;
+      height: auto;
+      max-height: none;
+      flex: none;
     }
 
     /* Small X button, top-right — not a full-width bar */
