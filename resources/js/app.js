@@ -10,12 +10,8 @@ import 'vue-toastification/dist/index.css'
 import { domData } from './domData'
 
 //import languages
+// Fork note: this build is English-only — no language selector is offered.
 import en from './i18n/en.json'
-import de from './i18n/de.json'
-import fr from './i18n/fr.json'
-import it from './i18n/it.json'
-import nl from './i18n/nl.json'
-import pt from './i18n/pt.json'
 let clickOutsideEvent = null
 
 const showHelpTip = (event, helpTipId) => {
@@ -109,7 +105,8 @@ const observer = new MutationObserver((mutations) => {
 observer.observe(document.body, { childList: true, subtree: true })
 
 const tolgee = Tolgee().use(DevTools()).use(FormatIcu()).init({
-  language: localStorage.getItem('language') || domData().default_language || 'en',
+  // English-only build: no language selector, no stored language.
+  language: 'en',
 
   // for development
   apiUrl:  import.meta.env.VITE_APP_TOLGEE_API_URL,
@@ -117,12 +114,7 @@ const tolgee = Tolgee().use(DevTools()).use(FormatIcu()).init({
 
   // for production
   staticData: {
-    en,
-    de,
-    fr,
-    it,
-    nl,
-    pt
+    en
   }
 })
 

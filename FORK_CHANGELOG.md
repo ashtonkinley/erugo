@@ -14,7 +14,11 @@
 
 # FORK Changelog
 
-> **Translation policy of this fork:** Only **English and German** are actively maintained and offered in the UI. The language selector has been reduced to these two languages, and the other locale files (`fr`, `it`, `nl`, `pt`, `pt-BR`) still exist but are no longer updated when UI strings change.
+> **Translation policy of this fork:** The UI is **English-only**. The language selector was removed entirely (2026-10-01) along with the German translation and the admin settings for default language / language selector visibility. The other locale files (`de`, `fr`, `it`, `nl`, `pt`, `pt-BR`) may still exist on disk but are no longer part of the build.
+
+## 2026-10-01 — Remove language options, centre login screen
+- **Language selector removed:** the floating language button (which overlapped the logout button) is gone, along with `languageSelector.vue`, the German translation (`de.json`), and the "default language" / "show language selector" admin settings. Tolgee is now hardcoded to English; all other locales were dropped from the frontend build.
+- **Login screen centred:** the logged-out login card is now horizontally centred in the viewport to match the centred upload panel (it was hugging the left side).
 
 ## 2026-10-01 — Editorial upload page (Option A)
 - **Upload page redesign (Option A):** the share upload page is now a full-bleed editorial treatment matching the download page — rotating background photo, bottom gradient scrim (plus a subtle top shade for the status-bar clock), centred logo, and a bottom-centred upload panel. "Add files" is the dominant pill button in the theme's primary color; "Add folders" is a quieter glass pill. Storage quota and expiry sit on one centred meta line (expiry settings expand inline); recipients, share-name/message fields, and the dropzone use restrained glass styling; the bottom "Upload" button is a full-width hero pill and the password lock is a glass circle. The upload progress overlay now takes over the viewport with a dark scrim. Settings/logout/reverse-share actions float as glass circles top-right; "Powered by" is hidden on the upload page.
